@@ -5,8 +5,13 @@ C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\HtmlAgilityPack.dll
 C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\HtmlAgilityPack.pdb
 C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\HtmlAgilityPack.xml
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.csprojResolveAssemblyReference.cache
-C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Main.resources
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Properties.Resources.resources
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.csproj.GenerateResource.Cache
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.exe
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.pdb
+C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\EntityFramework.dll
+C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\EntityFramework.SqlServer.dll
+C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\EntityFramework.xml
+C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\EntityFramework.SqlServer.xml
+C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Forms.Main.resources
+C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Forms.HowTo.resources
