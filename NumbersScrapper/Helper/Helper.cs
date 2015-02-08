@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 
 namespace NumbersScrapper.Helper
 {
-    class Helper
+    public enum ScrapperStatus
+    {
+        Error, Success, Start, End
+    };
+
+    class HelperClass
     {
         public static string ValidateDir(string dir)
         {
@@ -35,6 +40,11 @@ namespace NumbersScrapper.Helper
                 throw;
             }
             return retval.ToString();
+        }
+
+        public static void WriteToLog(ScrapperStatus status, string desc)
+        {
+            return;
         }
     }
 }

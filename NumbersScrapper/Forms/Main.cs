@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using HtmlAgilityPack;
 using NumbersScrapper.DataModel;
+using NumbersScrapper.Helper;
 
 namespace NumbersScrapper.Forms
 {
@@ -44,34 +45,32 @@ namespace NumbersScrapper.Forms
                 {
                     try
                     {
-                        yearListPage.LoadHtml(Helper.Helper.GetHTML(@"http://www.the-numbers.com/movies/#tab=year"));
+                        yearListPage.LoadHtml(HelperClass.GetHTML(@"http://www.the-numbers.com/movies/#tab=year"));
                         downloaded = true;
                     }
                     catch
                     {
                         downloaded = false;
-                        Task.Delay(1000); // add sleep for 1 sec to delay the fetch
+                        Task.Delay(5000); // add sleep for 1 sec to delay the fetch
                         count++;
+                        if (count >= 3)
+                            HelperClass.WriteToLog(ScrapperStatus.Error, "Fail download year list. Aborting.");
+                        else
+                        {
+                            HelperClass.WriteToLog(ScrapperStatus.Error, "Fail download year list. Retry after 5 second...");
+                            return;
+                        }
                     }
-                }
-                if (count >= 3)
-                {
-                    MessageBox.Show("Failed three times to download Years List. Please try again later.");
-                    return;
                 }
                 // download all
                 foreach (string year in years)
                 {
                     var singleYear = new SingleYearPage();
                     singleYear.GetASingleYear(year);
-                    for (int i = 1; i <= 12; i++)
+                    foreach (SingleMovieLink sml in singleYear.Movies)
                     {
-                        foreach (SingleMovieLink sml in singleYear.Monthly)
-                        {
-                            // get per movies
-                            sml.GetMovie();
-                        }
-
+                        // get per movies
+                        sml.GetMovie();
                     }
                 }
             }
@@ -80,13 +79,10 @@ namespace NumbersScrapper.Forms
                 // download by year
                 var singleYear = new SingleYearPage();
                 singleYear.GetASingleYear(txtYear.Text);
-                for (int i = 1; i <= 12; i++)
+                foreach (SingleMovieLink sml in singleYear.Movies)
                 {
-                    foreach (SingleMovieLink sml in singleYear.Monthly)
-                    {
-                        // get per movies
-                        sml.GetMovie();
-                    }
+                    // get per movies
+                    sml.GetMovie();
                 }
             }
         }
