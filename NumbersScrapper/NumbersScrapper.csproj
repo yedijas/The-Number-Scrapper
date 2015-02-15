@@ -82,7 +82,7 @@
     <Compile Include="Forms\HowTo.Designer.cs">
       <DependentUpon>HowTo.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helper\Helper.cs" />
+    <Compile Include="HelperClasses\Helper.cs" />
     <Compile Include="Forms\Main.cs">
       <SubType>Form</SubType>
     </Compile>

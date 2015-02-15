@@ -69,7 +69,7 @@
             // howToUseToolStripMenuItem
             // 
             this.howToUseToolStripMenuItem.Name = "howToUseToolStripMenuItem";
-            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.howToUseToolStripMenuItem.Text = "How To Use";
             this.howToUseToolStripMenuItem.Click += new System.EventHandler(this.howToUseToolStripMenuItem_Click);
             // 
@@ -121,6 +121,7 @@
             this.txtYear.Name = "txtYear";
             this.txtYear.Size = new System.Drawing.Size(171, 20);
             this.txtYear.TabIndex = 4;
+            this.txtYear.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtYear_KeyDown);
             // 
             // Main
             // 

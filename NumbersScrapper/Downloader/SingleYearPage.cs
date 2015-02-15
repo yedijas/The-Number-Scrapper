@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NumbersScrapper.DataModel;
-using NumbersScrapper.Helper;
+using NumbersScrapper.HelperClasses;
 
 namespace NumbersScrapper.Downloader
 {
@@ -31,7 +31,8 @@ namespace NumbersScrapper.Downloader
         /// Get list of movies in a single year
         /// </summary>
         /// <param name="year">year number</param>
-        public void GetASingleYear(string year){
+        public void GetASingleYear(string year)
+        {
             bool downloaded = false; // flag that whole page is downloaded
             var yearPage = new HtmlDocument();
             int count = 0;
@@ -39,7 +40,7 @@ namespace NumbersScrapper.Downloader
             {
                 try
                 {
-                    yearPage.LoadHtml(HelperClass.GetHTML(@"http://www.the-numbers.com/movies/year/" + year));
+                    yearPage.LoadHtml(Helper.GetHTML(@"http://www.the-numbers.com/movies/year/" + year));
                     downloaded = true;
                 }
                 catch
@@ -48,26 +49,37 @@ namespace NumbersScrapper.Downloader
                     Task.Delay(5000);
                     count++;
                     if (count >= 3)
-                        HelperClass.WriteToLog(ScrapperStatus.Error, "Fail download page for year " + year);
+                    {
+                        Helper.WriteToLog(ProgramStatus.Error, "Fail download page for year " + year  + ". Aborting....");
+                        throw new Exception("Fail download page for year " + year + ". Aborting....");
+                    }
                     else
                     {
-                        HelperClass.WriteToLog(ScrapperStatus.Error, "Fail download page for year " + year + ". Retry after 5 second...");
-                        return;
+                        Helper.WriteToLog(ProgramStatus.Error, "Fail download page for year " + year + ". Retry after 5 second...");
                     }
                 }
             }
-            var fillingChart = yearPage.DocumentNode.ChildNodes
-                .Single(o => o.HasAttributes && 
-                    o.Attributes["id"].ToString().Equals("page_filling_chart"));
-            var linkContainer = fillingChart.ChildNodes.Single(o => o.Name.Equals("table"))
-                .ChildNodes.Where(o => o.Name.Equals("tr") &&
-                    o.ChildNodes.Any(p => p.HasAttributes &&
-                        p.Attributes["class"].Value.Equals("data")));
-            foreach (HtmlNode tempLinkContainer in linkContainer)
+            try
             {
-                movies.Add(new SingleMovieLink(tempLinkContainer.ChildNodes.ElementAt(1)
-                    .ChildNodes.Single(o => o.Name.Equals("a") && o.HasAttributes)
-                    .Attributes["href"].Value));
+                var fillingChart = yearPage.DocumentNode.Descendants("div")
+                    .Single(o => o.HasAttributes &&
+                        o.Attributes.Any(p => p.Name.Equals("id")) &&
+                        o.Attributes["id"].Value.Equals("page_filling_chart"));
+                var linkContainer = fillingChart.Descendants("table")
+                    .Single(o => o.Name.Equals("table"))
+                    .ChildNodes.Where(o => o.Name.Equals("tr") &&
+                        o.ChildNodes.Any(p => p.HasAttributes &&
+                            p.Attributes.Any(q => q.Name.Equals("class")) &&
+                            p.Attributes["class"].Value.Equals("data")));
+                foreach (HtmlNode tempLinkContainer in linkContainer)
+                {
+                    movies.Add(new SingleMovieLink(tempLinkContainer.Descendants("a")
+                        .FirstOrDefault().Attributes["href"].Value));
+                }
+            }
+            catch 
+            {
+                throw;
             }
         }
     }

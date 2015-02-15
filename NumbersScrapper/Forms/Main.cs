@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using HtmlAgilityPack;
 using NumbersScrapper.DataModel;
-using NumbersScrapper.Helper;
+using NumbersScrapper.HelperClasses;
 
 namespace NumbersScrapper.Forms
 {
@@ -33,7 +33,7 @@ namespace NumbersScrapper.Forms
 
         private void btnDownload_Click(object sender, EventArgs e)
         {
-            int count = 0;
+            Helper.WriteToLog(ProgramStatus.Start);
             if (rbAll.Checked)
             {
                 // get all years listed
@@ -41,11 +41,12 @@ namespace NumbersScrapper.Forms
 
                 var yearListPage = new HtmlAgilityPack.HtmlDocument();
                 bool downloaded = false;
+                int count = 0;
                 while (!downloaded)
                 {
                     try
                     {
-                        yearListPage.LoadHtml(HelperClass.GetHTML(@"http://www.the-numbers.com/movies/#tab=year"));
+                        yearListPage.LoadHtml(Helper.GetHTML(@"http://www.the-numbers.com/movies/#tab=year"));
                         downloaded = true;
                     }
                     catch
@@ -54,11 +55,12 @@ namespace NumbersScrapper.Forms
                         Task.Delay(5000); // add sleep for 1 sec to delay the fetch
                         count++;
                         if (count >= 3)
-                            HelperClass.WriteToLog(ScrapperStatus.Error, "Fail download year list. Aborting.");
+                        {
+                            Helper.WriteToLog(ProgramStatus.Error, "Fail download year list. Aborting.");
+                        }
                         else
                         {
-                            HelperClass.WriteToLog(ScrapperStatus.Error, "Fail download year list. Retry after 5 second...");
-                            return;
+                            Helper.WriteToLog(ProgramStatus.Error, "Fail download year list. Retry after 5 second...");
                         }
                     }
                 }
@@ -66,31 +68,57 @@ namespace NumbersScrapper.Forms
                 foreach (string year in years)
                 {
                     var singleYear = new SingleYearPage();
-                    singleYear.GetASingleYear(year);
+                    try
+                    {
+                        singleYear.GetASingleYear(year);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                     foreach (SingleMovieLink sml in singleYear.Movies)
                     {
                         // get per movies
                         sml.GetMovie();
                     }
                 }
+                MessageBox.Show("Whole database successfully stored to DB!");
             }
             else
             {
                 // download by year
                 var singleYear = new SingleYearPage();
-                singleYear.GetASingleYear(txtYear.Text);
+                try // added extra checking for if fail to get the movie list.
+                {
+                    singleYear.GetASingleYear(txtYear.Text);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
                 foreach (SingleMovieLink sml in singleYear.Movies)
                 {
                     // get per movies
-                    sml.GetMovie();
+                    //sml.GetMovie();
+                    Console.WriteLine(sml.url);
                 }
+                MessageBox.Show("Year " + txtYear.Text + "successfully stored to DB!");
             }
+            Helper.WriteToLog(ProgramStatus.End);
         }
 
         private void howToUseToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var howto = new HowTo();
             howto.Show();
+        }
+
+        private void txtYear_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                btnDownload.PerformClick();
+            }
         }
     }
 }
