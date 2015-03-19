@@ -52,7 +52,6 @@ namespace NumbersScrapper.Forms
                     catch
                     {
                         downloaded = false;
-                        Task.Delay(5000); // add sleep for 1 sec to delay the fetch
                         count++;
                         if (count >= 3)
                         {
@@ -61,50 +60,60 @@ namespace NumbersScrapper.Forms
                         else
                         {
                             Helper.WriteToLog(ProgramStatus.Error, "Fail download year list. Retry after 5 second...");
+                            Task.Delay(5000); // add sleep for 5 sec to delay the fetch
                         }
                     }
                 }
                 // download all
-                foreach (string year in years)
+                if (downloaded)
                 {
-                    var singleYear = new SingleYearPage();
-                    try
+                    // get year list.
+                    var table = yearListPage.DocumentNode.Descendants("div").Single(
+                        o => o.HasAttributes && o.Attributes.Any(p => p.Name.Equals("id")) &&
+                        o.Attributes["id"].Value.Equals("year"))
+                        .Descendants("table").FirstOrDefault();
+                    var trs = table.Descendants("tr").Reverse();
+
+                    foreach (var tr in trs)
                     {
-                        singleYear.GetASingleYear(year);
+                        years.Add(tr.Descendants("td").FirstOrDefault().Descendants("b")
+                            .FirstOrDefault().Descendants("a")
+                            .FirstOrDefault().InnerText.Trim());
                     }
-                    catch (Exception ex)
+
+                    foreach (string year in years)
                     {
-                        MessageBox.Show(ex.Message);
+                        this.GetASingleYear(year);
                     }
-                    foreach (SingleMovieLink sml in singleYear.Movies)
-                    {
-                        // get per movies
-                        sml.GetMovie();
-                    }
+                    MessageBox.Show("Whole database successfully stored to DB!");
                 }
-                MessageBox.Show("Whole database successfully stored to DB!");
             }
             else
             {
-                // download by year
-                var singleYear = new SingleYearPage();
-                try // added extra checking for if fail to get the movie list.
-                {
-                    singleYear.GetASingleYear(txtYear.Text);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-                foreach (SingleMovieLink sml in singleYear.Movies)
-                {
-                    // get per movies
-                    //sml.GetMovie();
-                    Console.WriteLine(sml.url);
-                }
-                MessageBox.Show("Year " + txtYear.Text + "successfully stored to DB!");
+                this.GetASingleYear(txtYear.Text);
             }
             Helper.WriteToLog(ProgramStatus.End);
+        }
+
+        private void GetASingleYear(string year)
+        {
+            // download by year
+            var singleYear = new SingleYearPage();
+            try // added extra checking for if fail to get the movie list.
+            {
+                singleYear.GetASingleYear(year);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            foreach (SingleMovieLink sml in singleYear.Movies)
+            {
+                // get per movies
+                //sml.GetMovie();
+                Console.WriteLine(sml.url);
+            }
+            MessageBox.Show("Year " + txtYear.Text + "successfully stored to DB!");
         }
 
         private void howToUseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -119,6 +128,13 @@ namespace NumbersScrapper.Forms
             {
                 btnDownload.PerformClick();
             }
+        }
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+            // test modules
+            SingleMovieLink testsml = new SingleMovieLink(@"movie/Dark-Knight-The");
+            testsml.GetMovie();
         }
     }
 }

@@ -46,7 +46,6 @@ namespace NumbersScrapper.Downloader
                 catch
                 {
                     downloaded = false;
-                    Task.Delay(5000);
                     count++;
                     if (count >= 3)
                     {
@@ -56,6 +55,7 @@ namespace NumbersScrapper.Downloader
                     else
                     {
                         Helper.WriteToLog(ProgramStatus.Error, "Fail download page for year " + year + ". Retry after 5 second...");
+                        Task.Delay(5000);
                     }
                 }
             }

@@ -62,6 +62,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
@@ -75,6 +76,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataModel\SingleMovieLink.cs" />
+    <Compile Include="DataModel\TheNumbers.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TheNumbers.dbml</DependentUpon>
+    </Compile>
     <Compile Include="Downloader\SingleYearPage.cs" />
     <Compile Include="Forms\HowTo.cs">
       <SubType>Form</SubType>
@@ -91,6 +97,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="DataModel\TheNumbers.dbml.layout">
+      <DependentUpon>TheNumbers.dbml</DependentUpon>
+    </None>
     <EmbeddedResource Include="Forms\HowTo.resx">
       <DependentUpon>HowTo.cs</DependentUpon>
     </EmbeddedResource>
@@ -106,6 +115,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="DataModel\TheNumbers.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>TheNumbers.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -138,6 +152,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup />
