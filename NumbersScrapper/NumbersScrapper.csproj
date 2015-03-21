@@ -76,6 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataModel\SingleMovieLink.cs" />
+    <Compile Include="DataModel\TheNumbers.cs">
+      <DependentUpon>TheNumbers.dbml</DependentUpon>
+    </Compile>
     <Compile Include="DataModel\TheNumbers.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

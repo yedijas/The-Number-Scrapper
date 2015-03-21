@@ -33,19 +33,6 @@ namespace NumbersScrapper.DataModel
                 GetVideoSales(result);
                 GetRole(result);
             }
-            else
-            {
-                throw new Exception("Fail to get movie with link " + this.url);
-            }
-        }
-
-        private string GetMovieID(TheNumbersDataContext dc)
-        {
-            string latestID = (from n in dc.Movies
-                               orderby n.ID descending
-                               select n.ID).FirstOrDefault();
-            latestID = (Int32.Parse(latestID) + 1).ToString();
-            return latestID;
         }
 
         #region individual scrapper
@@ -73,29 +60,32 @@ namespace NumbersScrapper.DataModel
                     doc.LoadHtml(Helper.GetHTML(url + @"#tab=summary"));
                     downloaded = true;
                 }
-                catch
+                catch (Exception e)
                 {
                     downloaded = false;
                     count++;
                     if (count >= 3)
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download movie with URL - " + url + ". Aborting.");
-                        return result;
+                        Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                        Helper.WriteToError(url, e.StackTrace);
                     }
                     else
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download movie with URL - " + url + ". Aborting.");
                         Task.Delay(5000);
                     }
                 }
             }
             if (downloaded)
             {
-                movieDB.ID = GetMovieID(dc);
+                movieDB.ID = dc.GetMovieID();
                 // get summary div
                 var summ = doc.DocumentNode.Descendants("div")
                     .Single(o => o.HasAttributes && o.Attributes.Any(p => p.Name.Equals("id"))
                     && o.Attributes["id"].Value.Equals("summary"));
+
+                // title
+                movieDB.Title = doc.DocumentNode.Descendants("h1").Single(tit => tit.HasAttributes && tit.Attributes.Any(attr => attr.Name.ToLowerInvariant().Equals("itemprop")) && tit.Attributes["itemprop"].Value.ToLowerInvariant().Equals("name"))
+                    .InnerText.Trim();
 
                 // rating
                 var rating = summ.Descendants("table").FirstOrDefault();
@@ -106,17 +96,13 @@ namespace NumbersScrapper.DataModel
                     {
                         if (a.InnerText.ToLowerInvariant().Contains("critics"))
                         { // critics
-                            /// TODO : Add store to database object.
                             string temprating = Regex.Match(a.InnerText, @"\d+").Value;
-                            //Console.WriteLine(temprating);
                             movieDB.RTCRating = Int32.Parse(temprating);
                         }
                         else
                         { // audience
-                            /// TODO : Add store to database object.
                             string temprating = Regex.Match(a.InnerText, @"\d+").Value;
                             movieDB.RTARating = Int32.Parse(temprating);
-                            //Console.WriteLine(temprating);
                         }
                     }
                 }
@@ -128,9 +114,8 @@ namespace NumbersScrapper.DataModel
                     if (tr.InnerText.ToLowerInvariant().Contains("budget"))
                     {
                         var tempbudget = tr.InnerText.Split(':').LastOrDefault()
-                            .Trim().Replace("$", string.Empty).Replace(",", string.Empty);
+                            .Trim().Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty);
                         movieDB.Budget = Int32.Parse(tempbudget);
-                        //Console.WriteLine(tempbudget);
                     }
                     else if (tr.InnerText.ToLowerInvariant().Contains("domestic"))
                     {
@@ -149,9 +134,6 @@ namespace NumbersScrapper.DataModel
                                 reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
                             realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
                             var publisher = HtmlNode.CreateNode(rel[1].Trim());
-                            //Console.WriteLine(kind);
-                            //Console.WriteLine(realreldate.ToString());
-                            //Console.WriteLine(publisher.InnerText);
                             ReleaseDate reldateDBtemp = new ReleaseDate();
                             reldateDBtemp.ReleaseDate1 = realreldate;
                             reldateDBtemp.Remarks = kind;
@@ -177,9 +159,6 @@ namespace NumbersScrapper.DataModel
                                 reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
                             realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
                             var publisher = HtmlNode.CreateNode(rel[1].Trim());
-                            //Console.WriteLine(kind);
-                            //Console.WriteLine(realreldate.ToString());
-                            //Console.WriteLine(publisher.InnerText);
                             ReleaseDate reldateDBtemp = new ReleaseDate();
                             reldateDBtemp.ReleaseDate1 = realreldate;
                             reldateDBtemp.Remarks = kind;
@@ -192,28 +171,26 @@ namespace NumbersScrapper.DataModel
                     {
                         var mpaarating = tr.Descendants("td").LastOrDefault().Descendants("a").Single()
                             .InnerText;
-                        Console.WriteLine(mpaarating);
+                        //Console.WriteLine(mpaarating);
                         movieDB.MPAARating = mpaarating;
                     }
                     else if (tr.InnerText.ToLowerInvariant().IndexOf("running") == 0)
                     {
                         var runningtime = Int32.Parse(Regex.Match(tr.Descendants("td").LastOrDefault()
                             .InnerText, @"\d+").Value);
-                        //Console.WriteLine(runningtime);
                         movieDB.RunningTime = runningtime;
                     }
                     else if (tr.InnerText.ToLowerInvariant().IndexOf("franchise") == 0)
                     {
                         var franchise = tr.Descendants("td").LastOrDefault()
                             .Descendants("a").Single().InnerText;
-                        //Console.WriteLine(franchise);
                         movieDB.Franchise = franchise;
                     }
                     else if (tr.InnerText.ToLowerInvariant().IndexOf("genre") == 0)
                     {
                         var genre = tr.Descendants("td").LastOrDefault()
                             .Descendants("a").Single().InnerText;
-                        Console.WriteLine(genre);
+                        //Console.WriteLine(genre);
                         movieDB.Genre = genre;
                     }
                     else if (tr.InnerText.ToLowerInvariant().IndexOf("production") == 0)
@@ -229,14 +206,23 @@ namespace NumbersScrapper.DataModel
                 }
                 try
                 {
-                    dc.ReleaseDates.InsertAllOnSubmit(reldateDB.Select(rd => { rd.MovieID = movieDB.ID; return rd; }).ToList());
-                    dc.Movies.InsertOnSubmit(movieDB);
-                    dc.SubmitChanges();
-                    result = movieDB.ID;
+                    var check = dc.CheckIfExistsTheSame(movieDB.Title, reldateDB);
+                    if (check.Equals("false"))
+                    {
+                        dc.ReleaseDates.InsertAllOnSubmit(reldateDB.Select(rd => { rd.MovieID = movieDB.ID; return rd; }).ToList());
+                        dc.Movies.InsertOnSubmit(movieDB);
+                        dc.SubmitChanges();
+                        result = movieDB.ID;
+                    }
+                    else
+                    {
+                        result = check;
+                    }
                 }
-                catch
+                catch (Exception e)
                 {
-                    // save error to database.
+                    Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                    Helper.WriteToError(url, e.StackTrace);
                 }
             }
             return result;
@@ -250,7 +236,6 @@ namespace NumbersScrapper.DataModel
         private void GetBO(string movieID)
         {
             GetDailyBO(movieID);
-            //GetWeeklyBO(movieID);
         }
 
         private void GetDailyBO(string movieID)
@@ -261,6 +246,10 @@ namespace NumbersScrapper.DataModel
             TheNumbersDataContext dc = new TheNumbersDataContext();
             List<DailyBO> dboDB = new List<DailyBO>();
 
+            // clean everything first
+            dc.DailyBOs.DeleteAllOnSubmit(dc.DailyBOs.Where(dc1 => dc1.MovieID.Equals(movieID)));
+            dc.SubmitChanges();
+
             while (!downloaded)
             {
                 try
@@ -268,50 +257,61 @@ namespace NumbersScrapper.DataModel
                     doc.LoadHtml(Helper.GetHTML(url + @"#tab=box-office"));
                     downloaded = true;
                 }
-                catch
+                catch (Exception e)
                 {
                     downloaded = false;
                     count++;
                     if (count >= 3)
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download box office of a movie with URL - " + url + ". Aborting.");
+                        Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                        Helper.WriteToError(url, e.StackTrace);
                     }
                     else
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download box office of a movie with URL - " + url + ". Aborting.");
                         Task.Delay(5000);
                     }
                 }
             }
             if (downloaded)
             {
-                var table = doc.DocumentNode.Descendants("div")
-                    .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("class")) && div.Attributes["class"].Value.Equals("content active"))
-                        .Descendants("div").First(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id")) && obj.Attributes["id"].Value.Equals("box_office_chart"))
-                        .Descendants("table").FirstOrDefault();
-                List<HtmlNode> trs = table.Descendants("tr").ToList();
-                trs.RemoveAt(0); // remove header
-                
-                foreach(HtmlNode tr in trs){
-                    var tds = tr.Descendants("td").ToArray();
-                    DailyBO tempDBO = new DailyBO { MovieID = movieID };
-                    tempDBO.DateCounted = DateTime.ParseExact(tds[0].Descendants("a").Single().InnerText, "YYYY/MM/dd", CultureInfo.InvariantCulture);
-                    tempDBO.Rank = Int32.Parse(tds[1].InnerText);
-                    tempDBO.Gross = Double.Parse(tds[2].InnerText.Replace("$", String.Empty).Replace(",",String.Empty));
-                    tempDBO.TheatersCount = Int32.Parse(tds[4].InnerText.Replace(",", string.Empty));
-                    tempDBO.TotalGross = Double.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",",string.Empty));
-                    tempDBO.NumDays = Int32.Parse(tds[7].InnerText);
-                    dboDB.Add(tempDBO);
-                }
-
                 try
                 {
+                    var table1 = doc.DocumentNode.Descendants("div")
+                        .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("id")) && div.Attributes["id"].Value.Equals("box-office"));
+                    var table2 = table1
+                            .Descendants("div").First(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id")) && obj.Attributes["id"].Value.Equals("box_office_chart"));
+                    var table = table2
+                            .Descendants("table").FirstOrDefault();
+                    List<HtmlNode> trs = table.Descendants("tr").ToList();
+                    trs.RemoveAt(0); // remove header
+
+                    try
+                    {
+                        foreach (HtmlNode tr in trs)
+                        {
+                            var tds = tr.Descendants("td").ToArray();
+                            DailyBO tempDBO = new DailyBO { MovieID = movieID };
+                            tempDBO.DateCounted = DateTime.ParseExact(tds[0].Descendants("a").Single().InnerText, "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                            tempDBO.Rank = tds[1].InnerText.Equals("-") ? 0 : Int32.Parse(tds[1].InnerText);
+                            tempDBO.Gross = Double.Parse(tds[2].InnerText.Replace("$", String.Empty).Replace(",", String.Empty).Replace("&nbsp;", string.Empty));
+                            tempDBO.TheatersCount = Int32.Parse(tds[4].InnerText.Replace(",", string.Empty));
+                            tempDBO.TotalGross = Double.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty));
+                            tempDBO.NumDays = Int32.Parse(tds[7].InnerText);
+                            dboDB.Add(tempDBO);
+                        }
+                    }
+                    catch
+                    {
+                        throw;
+                    }
+
                     dc.DailyBOs.InsertAllOnSubmit(dboDB);
                     dc.SubmitChanges();
                 }
-                catch
+                catch (Exception e)
                 {
-                    // save to DB
+                    Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                    Helper.WriteToError(url, e.StackTrace);
                 }
             }
         }
@@ -332,6 +332,11 @@ namespace NumbersScrapper.DataModel
             int count = 0;
             HtmlDocument doc = new HtmlDocument();
 
+            // clean everything first
+            TheNumbersDataContext dc = new TheNumbersDataContext();
+            dc.Videos.DeleteAllOnSubmit(dc.Videos.Where(dc1 => dc1.MovieID.Equals(movieID)));
+            dc.SubmitChanges();
+
             while (!downloaded)
             {
                 try
@@ -339,42 +344,122 @@ namespace NumbersScrapper.DataModel
                     doc.LoadHtml(Helper.GetHTML(url + @"#tab=video-sales"));
                     downloaded = true;
                 }
-                catch
+                catch (Exception e)
                 {
                     downloaded = false;
                     count++;
                     if (count >= 3)
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download box office of a movie with URL - " + url + ". Aborting.");
+                        Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                        Helper.WriteToError(url, e.StackTrace);
                     }
                     else
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download box office of a movie with URL - " + url + ". Aborting.");
                         Task.Delay(5000);
                     }
                 }
             }
             if (downloaded)
             {
-                var table = doc.DocumentNode.Descendants("div")
-                    .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("class")) && div.Attributes["class"].Value.Equals("content active"))
-                        .Descendants("div").Where(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id")) && obj.Attributes["id"].Value.Equals("box_office_chart"));
+                try
+                {
+                    var table = doc.DocumentNode.Descendants("div")
+                        .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("id")) && div.Attributes["id"].Value.Equals("video-sales"))
+                            .Descendants("div").Where(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id")) && obj.Attributes["id"].Value.Equals("box_office_chart"));
 
 
-                GetDVDSales(table.First(), movieID);
-                GetBluRaySales(table.Last(), movieID);
+                    GetDVDSales(table.First(), movieID);
+                    GetBluRaySales(table.Last(), movieID);
+                }
+                catch
+                {
+                    throw;
+                }
             }
         }
 
         private void GetDVDSales(HtmlNode div, string movieID)
         {
             TheNumbersDataContext dc = new TheNumbersDataContext();
-            List<DailyBO> dboDB = new List<DailyBO>();
+            List<Video> vidDB = new List<Video>();
+
+            var trs = div.Descendants("table").FirstOrDefault().Descendants("tr").ToList();
+            trs.Remove(trs.First());
+
+            try
+            {
+                foreach (var tr in trs)
+                {
+                    var tds = tr.Descendants("td").ToList();
+
+                    Video tempVid = new Video { MovieID = movieID, Type = "DVD" };
+                    tempVid.DateCounted = DateTime.ParseExact(tds[0].Descendants("a").Single().InnerText, "M/d/yyyy", CultureInfo.InvariantCulture);
+                    tempVid.Rank = tds[1].InnerText.Equals("-") ? 0 : Int32.Parse(tds[1].InnerText.Trim());
+                    tempVid.Units = Int32.Parse(tds[2].InnerText.Replace(",", string.Empty).Trim());
+                    tempVid.Spending = Int32.Parse(tds[5].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
+                    tempVid.TotalSpending = Int32.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
+                    tempVid.Week = Int32.Parse(tds[7].InnerText.Trim());
+
+                    vidDB.Add(tempVid);
+                }
+                try
+                {
+                    dc.Videos.InsertAllOnSubmit(vidDB);
+                    dc.SubmitChanges();
+                }
+                catch (Exception e)
+                {
+                    throw;
+                }
+            }
+            catch (Exception e)
+            {
+                Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                Helper.WriteToError(url, e.StackTrace);
+            }
         }
 
         private void GetBluRaySales(HtmlNode div, string movieID)
         {
+
             TheNumbersDataContext dc = new TheNumbersDataContext();
+            List<Video> vidDB = new List<Video>();
+
+            var trs = div.Descendants("table").FirstOrDefault().Descendants("tr").ToList();
+            trs.Remove(trs.First());
+
+            try
+            {
+                foreach (var tr in trs)
+                {
+                    var tds = tr.Descendants("td").ToList();
+
+                    Video tempVid = new Video { MovieID = movieID, Type = "BluRay" };
+                    tempVid.DateCounted = DateTime.ParseExact(tds[0].Descendants("a").Single().InnerText, "M/d/yyyy", CultureInfo.InvariantCulture);
+                    tempVid.Rank = tds[1].InnerText.Equals("-") ? 0 : Int32.Parse(tds[1].InnerText.Trim());
+                    tempVid.Units = Int32.Parse(tds[2].InnerText.Replace(",", string.Empty).Trim());
+                    tempVid.Spending = Int32.Parse(tds[5].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
+                    tempVid.TotalSpending = Int32.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
+                    tempVid.Week = Int32.Parse(tds[7].InnerText.Trim());
+
+                    vidDB.Add(tempVid);
+                }
+                try
+                {
+                    dc.Videos.InsertAllOnSubmit(vidDB);
+                    dc.SubmitChanges();
+                }
+                catch (Exception e)
+                {
+                    throw;
+                }
+            }
+            catch (Exception e)
+            {
+                Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                Helper.WriteToError(url, e.StackTrace);
+            }
+
             
         }
         #endregion
@@ -385,11 +470,14 @@ namespace NumbersScrapper.DataModel
         /// </summary>
         private void GetRole(string movieID)
         {
+            // clean everything first
+            TheNumbersDataContext dc = new TheNumbersDataContext();
+            dc.Roles.DeleteAllOnSubmit(dc.Roles.Where(dc1 => dc1.IDMovie.Equals(movieID)));
+            dc.SubmitChanges();
 
             bool downloaded = false;
             int count = 0;
             HtmlDocument doc = new HtmlDocument();
-            TheNumbersDataContext dc = new TheNumbersDataContext();
             List<Role> dboDB = new List<Role>();
 
             while (!downloaded)
@@ -399,64 +487,73 @@ namespace NumbersScrapper.DataModel
                     doc.LoadHtml(Helper.GetHTML(url + @"#tab=cast-and-crew"));
                     downloaded = true;
                 }
-                catch
+                catch (Exception e)
                 {
                     downloaded = false;
                     count++;
                     if (count >= 3)
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download crews of a movie with URL - " + url + ". Aborting.");
+                        Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                        Helper.WriteToError(url, e.StackTrace);
                     }
                     else
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail to download crews of a movie with URL - " + url + ". Aborting.");
                         Task.Delay(5000);
                     }
                 }
             }
             if (downloaded)
             {
-                var tables = doc.DocumentNode.Descendants("div")
-                    .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("class")) && div.Attributes["class"].Value.Equals("content active"))
-                        .Descendants("div");
-
-                foreach (var table in tables)
+                try
                 {
-                    List<HtmlNode> trs = table.Descendants("tr").ToList();
-                    trs.RemoveAt(0); // remove header
+                    var tables = doc.DocumentNode.Descendants("div")
+                        .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("id")) && div.Attributes["id"].Value.Equals("cast-and-crew"))
+                            .Descendants("div");
 
-                    foreach (HtmlNode tr in trs)
+                    foreach (var table in tables)
                     {
-                        var tds = tr.Descendants("td").ToList();
-                        Role tempDBO = new Role { IDMovie = movieID };
+                        dboDB = new List<Role>();
+                        List<HtmlNode> trs = table.Descendants("tr").ToList();
+                        trs.RemoveAt(0); // remove header
 
-                        foreach (var td in tds)
+                        foreach (HtmlNode tr in trs)
                         {
-                            if (!String.IsNullOrEmpty(td.InnerText.Replace(@"&nbsp;", String.Empty)))
+                            var tds = tr.Descendants("td").ToList();
+                            Role tempDBO = new Role { IDMovie = movieID };
+
+                            foreach (var td in tds)
                             {
-                                if (td.Descendants("b").Count() > 0)
+                                if (!String.IsNullOrEmpty(td.InnerText.Replace(@"&nbsp;", String.Empty)))
                                 {
-                                    tempDBO.Name = td.Descendants("a").Single().InnerText.Replace("&nbsp;", String.Empty).Trim();
-                                }
-                                else
-                                {
-                                    tempDBO.Role1 = td.InnerText.Replace("&nbsp;", String.Empty).Trim();
+                                    if (td.Descendants("b").Count() > 0)
+                                    {
+                                        tempDBO.Name = td.Descendants("a").Single().InnerText.Replace("&nbsp;", String.Empty).Trim();
+                                    }
+                                    else
+                                    {
+                                        tempDBO.Role1 = td.InnerText.Replace("&nbsp;", String.Empty).Trim();
+                                    }
                                 }
                             }
+
+                            dboDB.Add(tempDBO);
                         }
 
-                        dboDB.Add(tempDBO);
+                        try
+                        {
+                            dc.Roles.InsertAllOnSubmit(dboDB);
+                            dc.SubmitChanges();
+                        }
+                        catch
+                        {
+                            throw;
+                        }
                     }
-
-                    try
-                    {
-                        dc.Roles.InsertAllOnSubmit(dboDB);
-                        dc.SubmitChanges();
-                    }
-                    catch
-                    {
-                        // save to DB
-                    }
+                }
+                catch (Exception e)
+                {
+                    Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                    Helper.WriteToError(url, e.StackTrace);
                 }
             }
         }

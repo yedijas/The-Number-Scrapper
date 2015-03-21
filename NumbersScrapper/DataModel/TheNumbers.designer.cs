@@ -30,9 +30,27 @@ namespace NumbersScrapper.DataModel
 		
     #region Extensibility Method Definitions
     partial void OnCreated();
+    partial void InsertDailyBO(DailyBO instance);
+    partial void UpdateDailyBO(DailyBO instance);
+    partial void DeleteDailyBO(DailyBO instance);
+    partial void InsertVideo(Video instance);
+    partial void UpdateVideo(Video instance);
+    partial void DeleteVideo(Video instance);
+    partial void InsertError(Error instance);
+    partial void UpdateError(Error instance);
+    partial void DeleteError(Error instance);
+    partial void InsertLog(Log instance);
+    partial void UpdateLog(Log instance);
+    partial void DeleteLog(Log instance);
     partial void InsertMovy(Movy instance);
     partial void UpdateMovy(Movy instance);
     partial void DeleteMovy(Movy instance);
+    partial void InsertReleaseDate(ReleaseDate instance);
+    partial void UpdateReleaseDate(ReleaseDate instance);
+    partial void DeleteReleaseDate(ReleaseDate instance);
+    partial void InsertRole(Role instance);
+    partial void UpdateRole(Role instance);
+    partial void DeleteRole(Role instance);
     #endregion
 		
 		public TheNumbersDataContext() : 
@@ -73,11 +91,27 @@ namespace NumbersScrapper.DataModel
 			}
 		}
 		
-		public System.Data.Linq.Table<WeeklyBO> WeeklyBOs
+		public System.Data.Linq.Table<Video> Videos
 		{
 			get
 			{
-				return this.GetTable<WeeklyBO>();
+				return this.GetTable<Video>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Error> Errors
+		{
+			get
+			{
+				return this.GetTable<Error>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Log> Logs
+		{
+			get
+			{
+				return this.GetTable<Log>();
 			}
 		}
 		
@@ -107,8 +141,10 @@ namespace NumbersScrapper.DataModel
 	}
 	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.DailyBO")]
-	public partial class DailyBO
+	public partial class DailyBO : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private string _MovieID;
 		
@@ -124,8 +160,33 @@ namespace NumbersScrapper.DataModel
 		
 		private System.DateTime _DateCounted;
 		
+		private int _ID;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnMovieIDChanging(string value);
+    partial void OnMovieIDChanged();
+    partial void OnRankChanging(int value);
+    partial void OnRankChanged();
+    partial void OnGrossChanging(double value);
+    partial void OnGrossChanged();
+    partial void OnTheatersCountChanging(int value);
+    partial void OnTheatersCountChanged();
+    partial void OnTotalGrossChanging(double value);
+    partial void OnTotalGrossChanged();
+    partial void OnNumDaysChanging(int value);
+    partial void OnNumDaysChanged();
+    partial void OnDateCountedChanging(System.DateTime value);
+    partial void OnDateCountedChanged();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    #endregion
+		
 		public DailyBO()
 		{
+			OnCreated();
 		}
 		
 		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MovieID", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
@@ -139,7 +200,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._MovieID != value))
 				{
+					this.OnMovieIDChanging(value);
+					this.SendPropertyChanging();
 					this._MovieID = value;
+					this.SendPropertyChanged("MovieID");
+					this.OnMovieIDChanged();
 				}
 			}
 		}
@@ -155,7 +220,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Rank != value))
 				{
+					this.OnRankChanging(value);
+					this.SendPropertyChanging();
 					this._Rank = value;
+					this.SendPropertyChanged("Rank");
+					this.OnRankChanged();
 				}
 			}
 		}
@@ -171,7 +240,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Gross != value))
 				{
+					this.OnGrossChanging(value);
+					this.SendPropertyChanging();
 					this._Gross = value;
+					this.SendPropertyChanged("Gross");
+					this.OnGrossChanged();
 				}
 			}
 		}
@@ -187,7 +260,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._TheatersCount != value))
 				{
+					this.OnTheatersCountChanging(value);
+					this.SendPropertyChanging();
 					this._TheatersCount = value;
+					this.SendPropertyChanged("TheatersCount");
+					this.OnTheatersCountChanged();
 				}
 			}
 		}
@@ -203,7 +280,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._TotalGross != value))
 				{
+					this.OnTotalGrossChanging(value);
+					this.SendPropertyChanging();
 					this._TotalGross = value;
+					this.SendPropertyChanged("TotalGross");
+					this.OnTotalGrossChanged();
 				}
 			}
 		}
@@ -219,7 +300,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._NumDays != value))
 				{
+					this.OnNumDaysChanging(value);
+					this.SendPropertyChanging();
 					this._NumDays = value;
+					this.SendPropertyChanged("NumDays");
+					this.OnNumDaysChanged();
 				}
 			}
 		}
@@ -235,32 +320,107 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._DateCounted != value))
 				{
+					this.OnDateCountedChanging(value);
+					this.SendPropertyChanging();
 					this._DateCounted = value;
+					this.SendPropertyChanged("DateCounted");
+					this.OnDateCountedChanged();
 				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.WeeklyBO")]
-	public partial class WeeklyBO
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Video")]
+	public partial class Video : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private string _MovieID;
 		
 		private int _Rank;
 		
-		private double _Gross;
+		private int _Units;
 		
-		private int _TheatersCount;
+		private int _Spending;
 		
-		private double _TotalGross;
+		private int _Week;
 		
-		private int _NumDays;
+		private int _TotalSpending;
+		
+		private string _Type;
 		
 		private System.DateTime _DateCounted;
 		
-		public WeeklyBO()
+		private int _ID;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnMovieIDChanging(string value);
+    partial void OnMovieIDChanged();
+    partial void OnRankChanging(int value);
+    partial void OnRankChanged();
+    partial void OnUnitsChanging(int value);
+    partial void OnUnitsChanged();
+    partial void OnSpendingChanging(int value);
+    partial void OnSpendingChanged();
+    partial void OnWeekChanging(int value);
+    partial void OnWeekChanged();
+    partial void OnTotalSpendingChanging(int value);
+    partial void OnTotalSpendingChanged();
+    partial void OnTypeChanging(string value);
+    partial void OnTypeChanged();
+    partial void OnDateCountedChanging(System.DateTime value);
+    partial void OnDateCountedChanged();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    #endregion
+		
+		public Video()
 		{
+			OnCreated();
 		}
 		
 		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MovieID", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
@@ -274,7 +434,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._MovieID != value))
 				{
+					this.OnMovieIDChanging(value);
+					this.SendPropertyChanging();
 					this._MovieID = value;
+					this.SendPropertyChanged("MovieID");
+					this.OnMovieIDChanged();
 				}
 			}
 		}
@@ -290,71 +454,111 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Rank != value))
 				{
+					this.OnRankChanging(value);
+					this.SendPropertyChanging();
 					this._Rank = value;
+					this.SendPropertyChanged("Rank");
+					this.OnRankChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Gross", DbType="Float NOT NULL")]
-		public double Gross
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Units", DbType="Int NOT NULL")]
+		public int Units
 		{
 			get
 			{
-				return this._Gross;
+				return this._Units;
 			}
 			set
 			{
-				if ((this._Gross != value))
+				if ((this._Units != value))
 				{
-					this._Gross = value;
+					this.OnUnitsChanging(value);
+					this.SendPropertyChanging();
+					this._Units = value;
+					this.SendPropertyChanged("Units");
+					this.OnUnitsChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TheatersCount", DbType="Int NOT NULL")]
-		public int TheatersCount
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Spending", DbType="Int NOT NULL")]
+		public int Spending
 		{
 			get
 			{
-				return this._TheatersCount;
+				return this._Spending;
 			}
 			set
 			{
-				if ((this._TheatersCount != value))
+				if ((this._Spending != value))
 				{
-					this._TheatersCount = value;
+					this.OnSpendingChanging(value);
+					this.SendPropertyChanging();
+					this._Spending = value;
+					this.SendPropertyChanged("Spending");
+					this.OnSpendingChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TotalGross", DbType="Float NOT NULL")]
-		public double TotalGross
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Week", DbType="Int NOT NULL")]
+		public int Week
 		{
 			get
 			{
-				return this._TotalGross;
+				return this._Week;
 			}
 			set
 			{
-				if ((this._TotalGross != value))
+				if ((this._Week != value))
 				{
-					this._TotalGross = value;
+					this.OnWeekChanging(value);
+					this.SendPropertyChanging();
+					this._Week = value;
+					this.SendPropertyChanged("Week");
+					this.OnWeekChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumDays", DbType="Int NOT NULL")]
-		public int NumDays
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TotalSpending", DbType="Int NOT NULL")]
+		public int TotalSpending
 		{
 			get
 			{
-				return this._NumDays;
+				return this._TotalSpending;
 			}
 			set
 			{
-				if ((this._NumDays != value))
+				if ((this._TotalSpending != value))
 				{
-					this._NumDays = value;
+					this.OnTotalSpendingChanging(value);
+					this.SendPropertyChanging();
+					this._TotalSpending = value;
+					this.SendPropertyChanged("TotalSpending");
+					this.OnTotalSpendingChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Type", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
+		public string Type
+		{
+			get
+			{
+				return this._Type;
+			}
+			set
+			{
+				if ((this._Type != value))
+				{
+					this.OnTypeChanging(value);
+					this.SendPropertyChanging();
+					this._Type = value;
+					this.SendPropertyChanged("Type");
+					this.OnTypeChanged();
 				}
 			}
 		}
@@ -370,8 +574,272 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._DateCounted != value))
 				{
+					this.OnDateCountedChanging(value);
+					this.SendPropertyChanging();
 					this._DateCounted = value;
+					this.SendPropertyChanged("DateCounted");
+					this.OnDateCountedChanged();
 				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Error")]
+	public partial class Error : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private string _link;
+		
+		private string _detail;
+		
+		private int _ID;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnlinkChanging(string value);
+    partial void OnlinkChanged();
+    partial void OndetailChanging(string value);
+    partial void OndetailChanged();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    #endregion
+		
+		public Error()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_link", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
+		public string link
+		{
+			get
+			{
+				return this._link;
+			}
+			set
+			{
+				if ((this._link != value))
+				{
+					this.OnlinkChanging(value);
+					this.SendPropertyChanging();
+					this._link = value;
+					this.SendPropertyChanged("link");
+					this.OnlinkChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_detail", DbType="VarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string detail
+		{
+			get
+			{
+				return this._detail;
+			}
+			set
+			{
+				if ((this._detail != value))
+				{
+					this.OndetailChanging(value);
+					this.SendPropertyChanging();
+					this._detail = value;
+					this.SendPropertyChanged("detail");
+					this.OndetailChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.[Log]")]
+	public partial class Log : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private System.DateTime _LogTime;
+		
+		private string _Desc;
+		
+		private int _ID;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnLogTimeChanging(System.DateTime value);
+    partial void OnLogTimeChanged();
+    partial void OnDescChanging(string value);
+    partial void OnDescChanged();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    #endregion
+		
+		public Log()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LogTime", DbType="DateTime NOT NULL")]
+		public System.DateTime LogTime
+		{
+			get
+			{
+				return this._LogTime;
+			}
+			set
+			{
+				if ((this._LogTime != value))
+				{
+					this.OnLogTimeChanging(value);
+					this.SendPropertyChanging();
+					this._LogTime = value;
+					this.SendPropertyChanged("LogTime");
+					this.OnLogTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Name="[Desc]", Storage="_Desc", DbType="VarChar(100) NOT NULL", CanBeNull=false)]
+		public string Desc
+		{
+			get
+			{
+				return this._Desc;
+			}
+			set
+			{
+				if ((this._Desc != value))
+				{
+					this.OnDescChanging(value);
+					this.SendPropertyChanging();
+					this._Desc = value;
+					this.SendPropertyChanged("Desc");
+					this.OnDescChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
 		}
 	}
@@ -383,6 +851,8 @@ namespace NumbersScrapper.DataModel
 		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private string _ID;
+		
+		private string _Title;
 		
 		private int _Budget;
 		
@@ -406,6 +876,8 @@ namespace NumbersScrapper.DataModel
     partial void OnCreated();
     partial void OnIDChanging(string value);
     partial void OnIDChanged();
+    partial void OnTitleChanging(string value);
+    partial void OnTitleChanged();
     partial void OnBudgetChanging(int value);
     partial void OnBudgetChanged();
     partial void OnMPAARatingChanging(string value);
@@ -445,6 +917,26 @@ namespace NumbersScrapper.DataModel
 					this._ID = value;
 					this.SendPropertyChanged("ID");
 					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Title", DbType="VarChar(100) NOT NULL", CanBeNull=false)]
+		public string Title
+		{
+			get
+			{
+				return this._Title;
+			}
+			set
+			{
+				if ((this._Title != value))
+				{
+					this.OnTitleChanging(value);
+					this.SendPropertyChanging();
+					this._Title = value;
+					this.SendPropertyChanged("Title");
+					this.OnTitleChanged();
 				}
 			}
 		}
@@ -631,8 +1123,10 @@ namespace NumbersScrapper.DataModel
 	}
 	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ReleaseDate")]
-	public partial class ReleaseDate
+	public partial class ReleaseDate : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private string _MovieID;
 		
@@ -644,8 +1138,29 @@ namespace NumbersScrapper.DataModel
 		
 		private string _Remarks;
 		
+		private int _ID;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnMovieIDChanging(string value);
+    partial void OnMovieIDChanged();
+    partial void OnDescChanging(string value);
+    partial void OnDescChanged();
+    partial void OnReleaseDate1Changing(System.DateTime value);
+    partial void OnReleaseDate1Changed();
+    partial void OnCompanyChanging(string value);
+    partial void OnCompanyChanged();
+    partial void OnRemarksChanging(string value);
+    partial void OnRemarksChanged();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    #endregion
+		
 		public ReleaseDate()
 		{
+			OnCreated();
 		}
 		
 		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MovieID", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
@@ -659,7 +1174,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._MovieID != value))
 				{
+					this.OnMovieIDChanging(value);
+					this.SendPropertyChanging();
 					this._MovieID = value;
+					this.SendPropertyChanged("MovieID");
+					this.OnMovieIDChanged();
 				}
 			}
 		}
@@ -675,7 +1194,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Desc != value))
 				{
+					this.OnDescChanging(value);
+					this.SendPropertyChanging();
 					this._Desc = value;
+					this.SendPropertyChanged("Desc");
+					this.OnDescChanged();
 				}
 			}
 		}
@@ -691,7 +1214,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._ReleaseDate1 != value))
 				{
+					this.OnReleaseDate1Changing(value);
+					this.SendPropertyChanging();
 					this._ReleaseDate1 = value;
+					this.SendPropertyChanged("ReleaseDate1");
+					this.OnReleaseDate1Changed();
 				}
 			}
 		}
@@ -707,7 +1234,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Company != value))
 				{
+					this.OnCompanyChanging(value);
+					this.SendPropertyChanging();
 					this._Company = value;
+					this.SendPropertyChanged("Company");
+					this.OnCompanyChanged();
 				}
 			}
 		}
@@ -723,15 +1254,61 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Remarks != value))
 				{
+					this.OnRemarksChanging(value);
+					this.SendPropertyChanging();
 					this._Remarks = value;
+					this.SendPropertyChanged("Remarks");
+					this.OnRemarksChanged();
 				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
 		}
 	}
 	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Role")]
-	public partial class Role
+	public partial class Role : INotifyPropertyChanging, INotifyPropertyChanged
 	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private string _IDMovie;
 		
@@ -739,8 +1316,25 @@ namespace NumbersScrapper.DataModel
 		
 		private string _Role1;
 		
+		private int _ID;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDMovieChanging(string value);
+    partial void OnIDMovieChanged();
+    partial void OnNameChanging(string value);
+    partial void OnNameChanged();
+    partial void OnRole1Changing(string value);
+    partial void OnRole1Changed();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    #endregion
+		
 		public Role()
 		{
+			OnCreated();
 		}
 		
 		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IDMovie", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
@@ -754,7 +1348,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._IDMovie != value))
 				{
+					this.OnIDMovieChanging(value);
+					this.SendPropertyChanging();
 					this._IDMovie = value;
+					this.SendPropertyChanged("IDMovie");
+					this.OnIDMovieChanged();
 				}
 			}
 		}
@@ -770,7 +1368,11 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Name != value))
 				{
+					this.OnNameChanging(value);
+					this.SendPropertyChanging();
 					this._Name = value;
+					this.SendPropertyChanged("Name");
+					this.OnNameChanged();
 				}
 			}
 		}
@@ -786,8 +1388,52 @@ namespace NumbersScrapper.DataModel
 			{
 				if ((this._Role1 != value))
 				{
+					this.OnRole1Changing(value);
+					this.SendPropertyChanging();
 					this._Role1 = value;
+					this.SendPropertyChanged("Role1");
+					this.OnRole1Changed();
 				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
 		}
 	}

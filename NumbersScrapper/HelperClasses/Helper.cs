@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using NumbersScrapper.DataModel;
 
 namespace NumbersScrapper.HelperClasses
 {
@@ -67,8 +68,27 @@ namespace NumbersScrapper.HelperClasses
                 default:
                     break;
             }
-            Console.WriteLine(log + desc);
+
+            try
+            {
+                TheNumbersDataContext dc = new TheNumbersDataContext();
+
+                dc.Logs.InsertOnSubmit(new DataModel.Log { LogTime = DateTime.Now, Desc = log });
+                dc.SubmitChanges();
+            }
+            catch
+            {
+                throw;
+            }
+
             return;
+        }
+
+        public static void WriteToError(string link, string detail)
+        {
+            TheNumbersDataContext dc = new TheNumbersDataContext();
+            dc.Errors.InsertOnSubmit(new Error { detail = detail, link = link.Replace(@"http://www.the-numbers.com/",String.Empty) });
+            dc.SubmitChanges();
         }
     }
 }

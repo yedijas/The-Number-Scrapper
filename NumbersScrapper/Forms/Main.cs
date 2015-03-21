@@ -33,6 +33,9 @@ namespace NumbersScrapper.Forms
 
         private void btnDownload_Click(object sender, EventArgs e)
         {
+            TheNumbersDataContext dc = new TheNumbersDataContext();
+            dc.ExecuteCommand("TRUNCATE TABLE [dbo].[log]"); // clears the log first.
+
             Helper.WriteToLog(ProgramStatus.Start);
             if (rbAll.Checked)
             {
@@ -55,11 +58,10 @@ namespace NumbersScrapper.Forms
                         count++;
                         if (count >= 3)
                         {
-                            Helper.WriteToLog(ProgramStatus.Error, "Fail download year list. Aborting.");
+                            Helper.WriteToLog(ProgramStatus.Error, "error loading the entire page");
                         }
                         else
                         {
-                            Helper.WriteToLog(ProgramStatus.Error, "Fail download year list. Retry after 5 second...");
                             Task.Delay(5000); // add sleep for 5 sec to delay the fetch
                         }
                     }
@@ -92,6 +94,10 @@ namespace NumbersScrapper.Forms
             {
                 this.GetASingleYear(txtYear.Text);
             }
+            if (dc.Errors.Count() > 0)
+            {
+                MessageBox.Show("Scrapping completed with error. Please send the entire log from DB to bananab9001@gmail.com");
+            }
             Helper.WriteToLog(ProgramStatus.End);
         }
 
@@ -110,8 +116,8 @@ namespace NumbersScrapper.Forms
             foreach (SingleMovieLink sml in singleYear.Movies)
             {
                 // get per movies
-                //sml.GetMovie();
-                Console.WriteLine(sml.url);
+                sml.GetMovie();
+                //Console.WriteLine(sml.url);
             }
             MessageBox.Show("Year " + txtYear.Text + "successfully stored to DB!");
         }
@@ -133,8 +139,8 @@ namespace NumbersScrapper.Forms
         private void Main_Load(object sender, EventArgs e)
         {
             // test modules
-            SingleMovieLink testsml = new SingleMovieLink(@"movie/Dark-Knight-The");
-            testsml.GetMovie();
+            //SingleMovieLink testsml = new SingleMovieLink(@"movie/Dark-Knight-The");
+            //testsml.GetMovie();
         }
     }
 }
