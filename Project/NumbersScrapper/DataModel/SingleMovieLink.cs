@@ -79,152 +79,161 @@ namespace NumbersScrapper.DataModel
             }
             if (downloaded)
             {
-                movieDB.ID = dc.GetMovieID();
-                // get summary div
-                var summ = doc.DocumentNode.Descendants("div")
-                    .Single(o => o.HasAttributes && o.Attributes.Any(p => p.Name.Equals("id"))
-                    && o.Attributes["id"].Value.Equals("summary"));
-
-                // title
-                movieDB.Title = doc.DocumentNode.Descendants("h1").Single(tit => tit.HasAttributes && tit.Attributes.Any(attr => attr.Name.ToLowerInvariant().Equals("itemprop")) && tit.Attributes["itemprop"].Value.ToLowerInvariant().Equals("name"))
-                    .InnerText.Trim();
-
-                // rating
-                var rating = summ.Descendants("table").FirstOrDefault();
-                if (rating.Descendants("tr").Count() > 1)
-                {
-                    // rating exist
-                    foreach (var a in rating.Descendants("tr").LastOrDefault().Descendants("a"))
-                    {
-                        if (a.InnerText.ToLowerInvariant().Contains("critics"))
-                        { // critics
-                            string temprating = Regex.Match(a.InnerText, @"\d+").Value;
-                            movieDB.RTCRating = Int32.Parse(temprating);
-                        }
-                        else
-                        { // audience
-                            string temprating = Regex.Match(a.InnerText, @"\d+").Value;
-                            movieDB.RTARating = Int32.Parse(temprating);
-                        }
-                    }
-                }
-
-                // general desc
-                var gen = summ.Descendants("table").LastOrDefault();
-                foreach (var tr in gen.Descendants("tr"))
-                {
-                    if (tr.InnerText.ToLowerInvariant().Contains("budget"))
-                    {
-                        var tempbudget = tr.InnerText.Split(':').LastOrDefault()
-                            .Trim().Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty);
-                        movieDB.Budget = Int32.Parse(tempbudget);
-                    }
-                    else if (tr.InnerText.ToLowerInvariant().Contains("domestic"))
-                    {
-                        foreach (var rels in tr.Descendants("td").LastOrDefault()
-                            .InnerHtml.Split(new string[] { "<br>" },
-                            StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            var rel = rels.Split(new string[] { "by" },
-                                StringSplitOptions.RemoveEmptyEntries);
-                            var kind = Regex.Match(rel[0], @"\((.*?)\)").Value.Equals("") ? "" : Regex.Match(rel[0], @"\((.*?)\)").Value;
-                            string reldate = "";
-                            DateTime realreldate = new DateTime();
-                            if (kind.Length > 0)
-                                reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Replace(kind, String.Empty).Trim();
-                            else
-                                reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
-                            realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
-                            HtmlNode publisher = rel.Count() > 2 ? HtmlNode.CreateNode(rel[1].Trim()) : null;
-                            ReleaseDate reldateDBtemp = new ReleaseDate();
-                            reldateDBtemp.ReleaseDate1 = realreldate;
-                            reldateDBtemp.Remarks = kind;
-                            reldateDBtemp.Company = publisher == null ? "Unknown" : publisher.InnerText;
-                            reldateDBtemp.Desc = kind;
-                            reldateDB.Add(reldateDBtemp);
-                        }
-                    }
-                    else if (tr.InnerText.ToLowerInvariant().IndexOf("video") == 0)
-                    {
-                        foreach (var rels in tr.Descendants("td").LastOrDefault()
-                            .InnerHtml.Split(new string[] { "<br>" },
-                            StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            var rel = rels.Split(new string[] { "by" },
-                                StringSplitOptions.RemoveEmptyEntries);
-                            var kind = Regex.Match(rel[0], @"\((.*?)\)").Value.Equals("") ? "" : Regex.Match(rel[0], @"\((.*?)\)").Value;
-                            string reldate = "";
-                            DateTime realreldate = new DateTime();
-                            if (kind.Length > 0)
-                                reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Replace(kind, String.Empty).Trim();
-                            else
-                                reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
-                            realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
-                            var publisher = HtmlNode.CreateNode(rel[1].Trim());
-                            ReleaseDate reldateDBtemp = new ReleaseDate();
-                            reldateDBtemp.ReleaseDate1 = realreldate;
-                            reldateDBtemp.Remarks = kind;
-                            reldateDBtemp.Company = publisher.InnerText;
-                            reldateDBtemp.Desc = kind;
-                            reldateDB.Add(reldateDBtemp);
-                        }
-                    }
-                    else if (tr.InnerText.ToLowerInvariant().IndexOf("mpaa") == 0)
-                    {
-                        var mpaarating = tr.Descendants("td").LastOrDefault().Descendants("a").Single()
-                            .InnerText;
-                        //Console.WriteLine(mpaarating);
-                        movieDB.MPAARating = mpaarating;
-                    }
-                    else if (tr.InnerText.ToLowerInvariant().IndexOf("running") == 0)
-                    {
-                        var runningtime = Int32.Parse(Regex.Match(tr.Descendants("td").LastOrDefault()
-                            .InnerText, @"\d+").Value);
-                        movieDB.RunningTime = runningtime;
-                    }
-                    else if (tr.InnerText.ToLowerInvariant().IndexOf("franchise") == 0)
-                    {
-                        var franchise = tr.Descendants("td").LastOrDefault()
-                            .Descendants("a").Single().InnerText;
-                        movieDB.Franchise = franchise;
-                    }
-                    else if (tr.InnerText.ToLowerInvariant().IndexOf("genre") == 0)
-                    {
-                        var genre = tr.Descendants("td").LastOrDefault()
-                            .Descendants("a").Single().InnerText;
-                        //Console.WriteLine(genre);
-                        movieDB.Genre = genre;
-                    }
-                    else if (tr.InnerText.ToLowerInvariant().IndexOf("production") == 0)
-                    {
-                        var company = "";
-                        foreach (var a in tr.Descendants("td").LastOrDefault()
-                            .Descendants("a"))
-                        {
-                            company += a.InnerText.Trim();
-                        }
-                        movieDB.Company = company;
-                    }
-                }
                 try
                 {
-                    var check = dc.CheckIfExistsTheSame(movieDB.Title, year);
-                    if (check.Equals("false"))
+                    movieDB.ID = dc.GetMovieID();
+                    // get summary div
+                    var summ = doc.DocumentNode.Descendants("div")
+                        .Single(o => o.HasAttributes && o.Attributes.Any(p => p.Name.Equals("id"))
+                        && o.Attributes["id"].Value.Equals("summary"));
+
+                    // title
+                    movieDB.Title = doc.DocumentNode.Descendants("h1").Single(tit => tit.HasAttributes && tit.Attributes.Any(attr => attr.Name.ToLowerInvariant().Equals("itemprop")) && tit.Attributes["itemprop"].Value.ToLowerInvariant().Equals("name"))
+                        .InnerText.Trim();
+
+                    // rating
+                    var rating = summ.Descendants("table").FirstOrDefault();
+                    if (rating.Descendants("tr").Count() > 1)
                     {
-                        dc.ReleaseDates.InsertAllOnSubmit(reldateDB.Select(rd => { rd.MovieID = movieDB.ID; return rd; }).ToList());
-                        dc.Movies.InsertOnSubmit(movieDB);
-                        dc.SubmitChanges();
-                        result = movieDB.ID;
+                        // rating exist
+                        foreach (var a in rating.Descendants("tr").LastOrDefault().Descendants("a"))
+                        {
+                            if (a.InnerText.ToLowerInvariant().Contains("critics"))
+                            { // critics
+                                string temprating = Regex.Match(a.InnerText, @"\d+").Value;
+                                movieDB.RTCRating = Int32.Parse(temprating);
+                            }
+                            else
+                            { // audience
+                                string temprating = Regex.Match(a.InnerText, @"\d+").Value;
+                                movieDB.RTARating = Int32.Parse(temprating);
+                            }
+                        }
                     }
-                    else
+
+                    movieDB.year = this.year;
+
+                    // general desc
+                    var gen = summ.Descendants("table").LastOrDefault();
+                    foreach (var tr in gen.Descendants("tr"))
                     {
-                        result = check;
+                        if (tr.InnerText.ToLowerInvariant().Contains("budget"))
+                        {
+                            var tempbudget = tr.InnerText.Split(':').LastOrDefault()
+                                .Trim().Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty);
+                            movieDB.Budget = Int32.Parse(tempbudget);
+                        }
+                        else if (tr.InnerText.ToLowerInvariant().Contains("domestic"))
+                        {
+                            foreach (var rels in tr.Descendants("td").LastOrDefault()
+                                .InnerHtml.Split(new string[] { "<br>" },
+                                StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                var rel = rels.Split(new string[] { "by" },
+                                    StringSplitOptions.RemoveEmptyEntries);
+                                var kind = Regex.Match(rel[0], @"\((.*?)\)").Value.Equals("") ? "" : Regex.Match(rel[0], @"\((.*?)\)").Value;
+                                string reldate = "";
+                                DateTime realreldate = new DateTime();
+                                if (kind.Length > 0)
+                                    reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Replace(kind, String.Empty).Trim();
+                                else
+                                    reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
+                                realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
+                                HtmlNode publisher = rel.Count() > 2 ? HtmlNode.CreateNode(rel[1].Trim()) : null;
+                                ReleaseDate reldateDBtemp = new ReleaseDate();
+                                reldateDBtemp.ReleaseDate1 = realreldate;
+                                reldateDBtemp.Remarks = kind;
+                                reldateDBtemp.Company = publisher == null ? "Unknown" : publisher.InnerText;
+                                reldateDBtemp.Desc = kind;
+                                reldateDB.Add(reldateDBtemp);
+                            }
+                        }
+                        else if (tr.InnerText.ToLowerInvariant().IndexOf("video") == 0)
+                        {
+                            foreach (var rels in tr.Descendants("td").LastOrDefault()
+                                .InnerHtml.Split(new string[] { "<br>" },
+                                StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                var rel = rels.Split(new string[] { "by" },
+                                    StringSplitOptions.RemoveEmptyEntries);
+                                var kind = Regex.Match(rel[0], @"\((.*?)\)").Value.Equals("") ? "" : Regex.Match(rel[0], @"\((.*?)\)").Value;
+                                string reldate = "";
+                                DateTime realreldate = new DateTime();
+                                if (kind.Length > 0)
+                                    reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Replace(kind, String.Empty).Trim();
+                                else
+                                    reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
+                                realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
+                                var publisher = HtmlNode.CreateNode(rel[1].Trim());
+                                ReleaseDate reldateDBtemp = new ReleaseDate();
+                                reldateDBtemp.ReleaseDate1 = realreldate;
+                                reldateDBtemp.Remarks = kind;
+                                reldateDBtemp.Company = publisher.InnerText;
+                                reldateDBtemp.Desc = kind;
+                                reldateDB.Add(reldateDBtemp);
+                            }
+                        }
+                        else if (tr.InnerText.ToLowerInvariant().IndexOf("mpaa") == 0)
+                        {
+                            var mpaarating = tr.Descendants("td").LastOrDefault().Descendants("a").Single()
+                                .InnerText;
+                            //Console.WriteLine(mpaarating);
+                            movieDB.MPAARating = mpaarating;
+                        }
+                        else if (tr.InnerText.ToLowerInvariant().IndexOf("running") == 0)
+                        {
+                            var runningtime = Int32.Parse(Regex.Match(tr.Descendants("td").LastOrDefault()
+                                .InnerText, @"\d+").Value);
+                            movieDB.RunningTime = runningtime;
+                        }
+                        else if (tr.InnerText.ToLowerInvariant().IndexOf("franchise") == 0)
+                        {
+                            var franchise = tr.Descendants("td").LastOrDefault()
+                                .Descendants("a").Single().InnerText;
+                            movieDB.Franchise = franchise;
+                        }
+                        else if (tr.InnerText.ToLowerInvariant().IndexOf("genre") == 0)
+                        {
+                            var genre = tr.Descendants("td").LastOrDefault()
+                                .Descendants("a").Single().InnerText;
+                            //Console.WriteLine(genre);
+                            movieDB.Genre = genre;
+                        }
+                        else if (tr.InnerText.ToLowerInvariant().IndexOf("compan") == 0)
+                        {
+                            var company = "";
+                            foreach (var a in tr.Descendants("td").LastOrDefault()
+                                .Descendants("a"))
+                            {
+                                company += a.InnerText.Trim();
+                            }
+                            movieDB.Company = company;
+                        }
+                    }
+                    try
+                    {
+                        var check = dc.CheckIfExistsTheSame(movieDB.Title, year);
+                        if (check.Equals("false"))
+                        {
+                            dc.ReleaseDates.InsertAllOnSubmit(reldateDB.Select(rd => { rd.MovieID = movieDB.ID; return rd; }).ToList());
+                            dc.Movies.InsertOnSubmit(movieDB);
+                            dc.SubmitChanges();
+                            result = movieDB.ID;
+                        }
+                        else
+                        {
+                            result = check;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
+                        Helper.WriteToError(url, e.StackTrace, year);
                     }
                 }
-                catch (Exception e)
+                catch
                 {
-                    Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                    Helper.WriteToError(url, e.StackTrace, year);
+                    Console.WriteLine("");
                 }
             }
             return result;
@@ -300,7 +309,7 @@ namespace NumbersScrapper.DataModel
                                 tempDBO.Gross = Double.Parse(tds[2].InnerText.Replace("$", String.Empty).Replace(",", String.Empty).Replace("&nbsp;", string.Empty));
                                 tempDBO.TheatersCount = Int32.Parse(tds[4].InnerText.Replace(",", string.Empty));
                                 tempDBO.TotalGross = Double.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty));
-                                tempDBO.NumDays = Int32.Parse(tds[7].InnerText);
+                                tempDBO.NumDays = Int32.Parse(tds[7].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty));
                                 dboDB.Add(tempDBO);
                             }
                         }
@@ -375,8 +384,12 @@ namespace NumbersScrapper.DataModel
                         var table = table1.Descendants("div")
                             .Where(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id"))
                                 && obj.Attributes["id"].Value.Equals("box_office_chart"));
-                        GetDVDSales(table.First(), movieID);
-                        GetBluRaySales(table.Last(), movieID);
+                        if (table.Count() > 0)
+                        {
+                            GetDVDSales(table.First(), movieID);
+                            if (table.Count() == 2)
+                                GetBluRaySales(table.Last(), movieID);
+                        }
                     }
                 }
                 catch
@@ -406,7 +419,7 @@ namespace NumbersScrapper.DataModel
                     tempVid.Units = Int32.Parse(tds[2].InnerText.Replace(",", string.Empty).Trim());
                     tempVid.Spending = Int32.Parse(tds[5].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
                     tempVid.TotalSpending = Int32.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
-                    tempVid.Week = Int32.Parse(tds[7].InnerText.Trim());
+                    tempVid.Week = Int32.Parse(tds[7].InnerText.Trim().Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty));
 
                     vidDB.Add(tempVid);
                 }
@@ -448,7 +461,7 @@ namespace NumbersScrapper.DataModel
                     tempVid.Units = Int32.Parse(tds[2].InnerText.Replace(",", string.Empty).Trim());
                     tempVid.Spending = Int32.Parse(tds[5].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
                     tempVid.TotalSpending = Int32.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Trim().Replace("&nbsp;", string.Empty));
-                    tempVid.Week = Int32.Parse(tds[7].InnerText.Trim());
+                    tempVid.Week = Int32.Parse(tds[7].InnerText.Trim().Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty));
 
                     vidDB.Add(tempVid);
                 }
@@ -522,12 +535,12 @@ namespace NumbersScrapper.DataModel
                     {
                         dboDB = new List<Role>();
                         List<HtmlNode> trs = table.Descendants("tr").ToList();
-                        trs.RemoveAt(0); // remove header
+                        //trs.RemoveAt(0); // remove header
 
                         foreach (HtmlNode tr in trs)
                         {
-                            var tds = tr.Descendants("td").ToList();
-                            Role tempDBO = new Role { IDMovie = movieID };
+                            var tds = tr.ChildNodes.Where(o => o.Name.Equals("td"));
+                            Role tempDBO = new Role { IDMovie = movieID, Name = "", Role1 = "" };
 
                             foreach (var td in tds)
                             {

@@ -15,6 +15,12 @@ namespace NumbersScrapper.DataModel
                                select n.ID).FirstOrDefault();
             latestID = String.IsNullOrEmpty(latestID) ? "0" : latestID;
             latestID = (Int32.Parse(latestID) + 1).ToString();
+
+            while (latestID.Length < 50)
+            {
+                latestID = "0" + latestID;
+            }
+
             return latestID;
         }
         public string CheckIfExistsTheSame(string title, int _year)
