@@ -113,10 +113,12 @@ namespace NumbersScrapper.Forms
                     }
                     MessageBox.Show("Whole database successfully stored to DB!");
                 }
+                MessageBox.Show("All successfully stored to DB!");
             }
             else
             {
                 this.GetASingleYear(txtYear.Text);
+                MessageBox.Show("Year " + txtYear.Text + " successfully stored to DB!");
             }
             if (dc.Errors.Count() > 0)
             {
@@ -143,7 +145,6 @@ namespace NumbersScrapper.Forms
                 sml.GetMovie();
                 //Console.WriteLine(sml.url);
             }
-            MessageBox.Show("Year " + txtYear.Text + "successfully stored to DB!");
         }
 
         private void howToUseToolStripMenuItem_Click(object sender, EventArgs e)
