@@ -185,10 +185,22 @@ namespace NumbersScrapper.Forms
 
             if (dr == DialogResult.Yes)
             {
-                SelectAllInList();
-                // export
-                ExportData();
+                if (ListIsNotEmpty())
+                {
+                    SelectAllInList();
+                    // export
+                    ExportData();
+                }
+                else
+                {
+                    MessageBox.Show("There is no movies stored in database, yet.");
+                }
             }
+        }
+
+        private bool ListIsNotEmpty()
+        {
+            return lstYear.Items.Count > 0;
         }
 
         private void btnSome_Click(object sender, EventArgs e)
@@ -197,8 +209,15 @@ namespace NumbersScrapper.Forms
 
             if (dr == DialogResult.Yes)
             {
-                // export
-                ExportData();
+                if (ListIsNotEmpty())
+                {
+                    // export
+                    ExportData();
+                }
+                else
+                {
+                    MessageBox.Show("There is no movies stored in database, yet.");
+                }
             }
         }
 
