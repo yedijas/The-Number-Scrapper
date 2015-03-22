@@ -49,7 +49,7 @@ namespace NumbersScrapper.Downloader
                     count++;
                     if (count >= 3)
                     {
-                        Helper.WriteToLog(ProgramStatus.Error, "Fail download page for year " + year  + ". Aborting....");
+                        Helper.WriteToLog(ProgramStatus.Error, "Fail download page for year " + year + ". Aborting....");
                         throw new Exception("Fail download page for year " + year + ". Aborting....");
                     }
                     else
@@ -74,10 +74,10 @@ namespace NumbersScrapper.Downloader
                 foreach (HtmlNode tempLinkContainer in linkContainer)
                 {
                     movies.Add(new SingleMovieLink(tempLinkContainer.Descendants("a")
-                        .FirstOrDefault().Attributes["href"].Value));
+                        .FirstOrDefault().Attributes["href"].Value, Int32.Parse(year)));
                 }
             }
-            catch 
+            catch
             {
                 throw;
             }

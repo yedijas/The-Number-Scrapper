@@ -37,6 +37,7 @@
             this.rbAll = new System.Windows.Forms.RadioButton();
             this.rbYear = new System.Windows.Forms.RadioButton();
             this.txtYear = new System.Windows.Forms.TextBox();
+            this.Redownload = new System.Windows.Forms.Button();
             this.menuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,6 +57,7 @@
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.exportToolStripMenuItem.Text = "Export";
+            this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -123,11 +125,22 @@
             this.txtYear.TabIndex = 4;
             this.txtYear.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtYear_KeyDown);
             // 
+            // Redownload
+            // 
+            this.Redownload.Location = new System.Drawing.Point(12, 106);
+            this.Redownload.Name = "Redownload";
+            this.Redownload.Size = new System.Drawing.Size(240, 23);
+            this.Redownload.TabIndex = 5;
+            this.Redownload.Text = "Redownload the Error";
+            this.Redownload.UseVisualStyleBackColor = true;
+            this.Redownload.Click += new System.EventHandler(this.Redownload_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(264, 113);
+            this.ClientSize = new System.Drawing.Size(264, 141);
+            this.Controls.Add(this.Redownload);
             this.Controls.Add(this.txtYear);
             this.Controls.Add(this.rbYear);
             this.Controls.Add(this.rbAll);
@@ -156,6 +169,7 @@
         private System.Windows.Forms.RadioButton rbAll;
         private System.Windows.Forms.RadioButton rbYear;
         private System.Windows.Forms.TextBox txtYear;
+        private System.Windows.Forms.Button Redownload;
     }
 }
 

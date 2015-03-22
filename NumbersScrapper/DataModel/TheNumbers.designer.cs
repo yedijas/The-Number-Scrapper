@@ -36,21 +36,21 @@ namespace NumbersScrapper.DataModel
     partial void InsertVideo(Video instance);
     partial void UpdateVideo(Video instance);
     partial void DeleteVideo(Video instance);
-    partial void InsertError(Error instance);
-    partial void UpdateError(Error instance);
-    partial void DeleteError(Error instance);
     partial void InsertLog(Log instance);
     partial void UpdateLog(Log instance);
     partial void DeleteLog(Log instance);
-    partial void InsertMovy(Movy instance);
-    partial void UpdateMovy(Movy instance);
-    partial void DeleteMovy(Movy instance);
     partial void InsertReleaseDate(ReleaseDate instance);
     partial void UpdateReleaseDate(ReleaseDate instance);
     partial void DeleteReleaseDate(ReleaseDate instance);
     partial void InsertRole(Role instance);
     partial void UpdateRole(Role instance);
     partial void DeleteRole(Role instance);
+    partial void InsertMovy(Movy instance);
+    partial void UpdateMovy(Movy instance);
+    partial void DeleteMovy(Movy instance);
+    partial void InsertError(Error instance);
+    partial void UpdateError(Error instance);
+    partial void DeleteError(Error instance);
     #endregion
 		
 		public TheNumbersDataContext() : 
@@ -99,27 +99,11 @@ namespace NumbersScrapper.DataModel
 			}
 		}
 		
-		public System.Data.Linq.Table<Error> Errors
-		{
-			get
-			{
-				return this.GetTable<Error>();
-			}
-		}
-		
 		public System.Data.Linq.Table<Log> Logs
 		{
 			get
 			{
 				return this.GetTable<Log>();
-			}
-		}
-		
-		public System.Data.Linq.Table<Movy> Movies
-		{
-			get
-			{
-				return this.GetTable<Movy>();
 			}
 		}
 		
@@ -136,6 +120,22 @@ namespace NumbersScrapper.DataModel
 			get
 			{
 				return this.GetTable<Role>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Movy> Movies
+		{
+			get
+			{
+				return this.GetTable<Movy>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Error> Errors
+		{
+			get
+			{
+				return this.GetTable<Error>();
 			}
 		}
 	}
@@ -624,116 +624,6 @@ namespace NumbersScrapper.DataModel
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Error")]
-	public partial class Error : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private string _link;
-		
-		private string _detail;
-		
-		private int _ID;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnlinkChanging(string value);
-    partial void OnlinkChanged();
-    partial void OndetailChanging(string value);
-    partial void OndetailChanged();
-    partial void OnIDChanging(int value);
-    partial void OnIDChanged();
-    #endregion
-		
-		public Error()
-		{
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_link", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
-		public string link
-		{
-			get
-			{
-				return this._link;
-			}
-			set
-			{
-				if ((this._link != value))
-				{
-					this.OnlinkChanging(value);
-					this.SendPropertyChanging();
-					this._link = value;
-					this.SendPropertyChanged("link");
-					this.OnlinkChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_detail", DbType="VarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string detail
-		{
-			get
-			{
-				return this._detail;
-			}
-			set
-			{
-				if ((this._detail != value))
-				{
-					this.OndetailChanging(value);
-					this.SendPropertyChanging();
-					this._detail = value;
-					this.SendPropertyChanged("detail");
-					this.OndetailChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int ID
-		{
-			get
-			{
-				return this._ID;
-			}
-			set
-			{
-				if ((this._ID != value))
-				{
-					this.OnIDChanging(value);
-					this.SendPropertyChanging();
-					this._ID = value;
-					this.SendPropertyChanged("ID");
-					this.OnIDChanged();
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.[Log]")]
 	public partial class Log : INotifyPropertyChanging, INotifyPropertyChanged
 	{
@@ -819,284 +709,6 @@ namespace NumbersScrapper.DataModel
 					this._ID = value;
 					this.SendPropertyChanged("ID");
 					this.OnIDChanged();
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Movies")]
-	public partial class Movy : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private string _ID;
-		
-		private string _Title;
-		
-		private int _Budget;
-		
-		private string _MPAARating;
-		
-		private int _RunningTime;
-		
-		private string _Franchise;
-		
-		private string _Genre;
-		
-		private string _Company;
-		
-		private int _RTCRating;
-		
-		private int _RTARating;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnIDChanging(string value);
-    partial void OnIDChanged();
-    partial void OnTitleChanging(string value);
-    partial void OnTitleChanged();
-    partial void OnBudgetChanging(int value);
-    partial void OnBudgetChanged();
-    partial void OnMPAARatingChanging(string value);
-    partial void OnMPAARatingChanged();
-    partial void OnRunningTimeChanging(int value);
-    partial void OnRunningTimeChanged();
-    partial void OnFranchiseChanging(string value);
-    partial void OnFranchiseChanged();
-    partial void OnGenreChanging(string value);
-    partial void OnGenreChanged();
-    partial void OnCompanyChanging(string value);
-    partial void OnCompanyChanged();
-    partial void OnRTCRatingChanging(int value);
-    partial void OnRTCRatingChanged();
-    partial void OnRTARatingChanging(int value);
-    partial void OnRTARatingChanged();
-    #endregion
-		
-		public Movy()
-		{
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", DbType="VarChar(50) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
-		public string ID
-		{
-			get
-			{
-				return this._ID;
-			}
-			set
-			{
-				if ((this._ID != value))
-				{
-					this.OnIDChanging(value);
-					this.SendPropertyChanging();
-					this._ID = value;
-					this.SendPropertyChanged("ID");
-					this.OnIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Title", DbType="VarChar(100) NOT NULL", CanBeNull=false)]
-		public string Title
-		{
-			get
-			{
-				return this._Title;
-			}
-			set
-			{
-				if ((this._Title != value))
-				{
-					this.OnTitleChanging(value);
-					this.SendPropertyChanging();
-					this._Title = value;
-					this.SendPropertyChanged("Title");
-					this.OnTitleChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Budget", DbType="Int NOT NULL")]
-		public int Budget
-		{
-			get
-			{
-				return this._Budget;
-			}
-			set
-			{
-				if ((this._Budget != value))
-				{
-					this.OnBudgetChanging(value);
-					this.SendPropertyChanging();
-					this._Budget = value;
-					this.SendPropertyChanged("Budget");
-					this.OnBudgetChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MPAARating", DbType="VarChar(100) NOT NULL", CanBeNull=false)]
-		public string MPAARating
-		{
-			get
-			{
-				return this._MPAARating;
-			}
-			set
-			{
-				if ((this._MPAARating != value))
-				{
-					this.OnMPAARatingChanging(value);
-					this.SendPropertyChanging();
-					this._MPAARating = value;
-					this.SendPropertyChanged("MPAARating");
-					this.OnMPAARatingChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RunningTime", DbType="Int NOT NULL")]
-		public int RunningTime
-		{
-			get
-			{
-				return this._RunningTime;
-			}
-			set
-			{
-				if ((this._RunningTime != value))
-				{
-					this.OnRunningTimeChanging(value);
-					this.SendPropertyChanging();
-					this._RunningTime = value;
-					this.SendPropertyChanged("RunningTime");
-					this.OnRunningTimeChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Franchise", DbType="VarChar(50)")]
-		public string Franchise
-		{
-			get
-			{
-				return this._Franchise;
-			}
-			set
-			{
-				if ((this._Franchise != value))
-				{
-					this.OnFranchiseChanging(value);
-					this.SendPropertyChanging();
-					this._Franchise = value;
-					this.SendPropertyChanged("Franchise");
-					this.OnFranchiseChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Genre", DbType="VarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string Genre
-		{
-			get
-			{
-				return this._Genre;
-			}
-			set
-			{
-				if ((this._Genre != value))
-				{
-					this.OnGenreChanging(value);
-					this.SendPropertyChanging();
-					this._Genre = value;
-					this.SendPropertyChanged("Genre");
-					this.OnGenreChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Company", DbType="VarChar(MAX) NOT NULL", CanBeNull=false)]
-		public string Company
-		{
-			get
-			{
-				return this._Company;
-			}
-			set
-			{
-				if ((this._Company != value))
-				{
-					this.OnCompanyChanging(value);
-					this.SendPropertyChanging();
-					this._Company = value;
-					this.SendPropertyChanged("Company");
-					this.OnCompanyChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RTCRating", DbType="Int NOT NULL")]
-		public int RTCRating
-		{
-			get
-			{
-				return this._RTCRating;
-			}
-			set
-			{
-				if ((this._RTCRating != value))
-				{
-					this.OnRTCRatingChanging(value);
-					this.SendPropertyChanging();
-					this._RTCRating = value;
-					this.SendPropertyChanged("RTCRating");
-					this.OnRTCRatingChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RTARating", DbType="Int NOT NULL")]
-		public int RTARating
-		{
-			get
-			{
-				return this._RTARating;
-			}
-			set
-			{
-				if ((this._RTARating != value))
-				{
-					this.OnRTARatingChanging(value);
-					this.SendPropertyChanging();
-					this._RTARating = value;
-					this.SendPropertyChanged("RTARating");
-					this.OnRTARatingChanged();
 				}
 			}
 		}
@@ -1413,6 +1025,442 @@ namespace NumbersScrapper.DataModel
 					this._ID = value;
 					this.SendPropertyChanged("ID");
 					this.OnIDChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Movies")]
+	public partial class Movy : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private string _ID;
+		
+		private string _Title;
+		
+		private System.Nullable<int> _Budget;
+		
+		private string _MPAARating;
+		
+		private System.Nullable<int> _RunningTime;
+		
+		private string _Franchise;
+		
+		private string _Genre;
+		
+		private string _Company;
+		
+		private System.Nullable<int> _RTCRating;
+		
+		private System.Nullable<int> _RTARating;
+		
+		private int _year;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIDChanging(string value);
+    partial void OnIDChanged();
+    partial void OnTitleChanging(string value);
+    partial void OnTitleChanged();
+    partial void OnBudgetChanging(System.Nullable<int> value);
+    partial void OnBudgetChanged();
+    partial void OnMPAARatingChanging(string value);
+    partial void OnMPAARatingChanged();
+    partial void OnRunningTimeChanging(System.Nullable<int> value);
+    partial void OnRunningTimeChanged();
+    partial void OnFranchiseChanging(string value);
+    partial void OnFranchiseChanged();
+    partial void OnGenreChanging(string value);
+    partial void OnGenreChanged();
+    partial void OnCompanyChanging(string value);
+    partial void OnCompanyChanged();
+    partial void OnRTCRatingChanging(System.Nullable<int> value);
+    partial void OnRTCRatingChanged();
+    partial void OnRTARatingChanging(System.Nullable<int> value);
+    partial void OnRTARatingChanged();
+    partial void OnyearChanging(int value);
+    partial void OnyearChanged();
+    #endregion
+		
+		public Movy()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", DbType="VarChar(50) NOT NULL", CanBeNull=false, IsPrimaryKey=true)]
+		public string ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Title", DbType="VarChar(100) NOT NULL", CanBeNull=false)]
+		public string Title
+		{
+			get
+			{
+				return this._Title;
+			}
+			set
+			{
+				if ((this._Title != value))
+				{
+					this.OnTitleChanging(value);
+					this.SendPropertyChanging();
+					this._Title = value;
+					this.SendPropertyChanged("Title");
+					this.OnTitleChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Budget", DbType="Int")]
+		public System.Nullable<int> Budget
+		{
+			get
+			{
+				return this._Budget;
+			}
+			set
+			{
+				if ((this._Budget != value))
+				{
+					this.OnBudgetChanging(value);
+					this.SendPropertyChanging();
+					this._Budget = value;
+					this.SendPropertyChanged("Budget");
+					this.OnBudgetChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_MPAARating", DbType="VarChar(100)")]
+		public string MPAARating
+		{
+			get
+			{
+				return this._MPAARating;
+			}
+			set
+			{
+				if ((this._MPAARating != value))
+				{
+					this.OnMPAARatingChanging(value);
+					this.SendPropertyChanging();
+					this._MPAARating = value;
+					this.SendPropertyChanged("MPAARating");
+					this.OnMPAARatingChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RunningTime", DbType="Int")]
+		public System.Nullable<int> RunningTime
+		{
+			get
+			{
+				return this._RunningTime;
+			}
+			set
+			{
+				if ((this._RunningTime != value))
+				{
+					this.OnRunningTimeChanging(value);
+					this.SendPropertyChanging();
+					this._RunningTime = value;
+					this.SendPropertyChanged("RunningTime");
+					this.OnRunningTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Franchise", DbType="VarChar(50)")]
+		public string Franchise
+		{
+			get
+			{
+				return this._Franchise;
+			}
+			set
+			{
+				if ((this._Franchise != value))
+				{
+					this.OnFranchiseChanging(value);
+					this.SendPropertyChanging();
+					this._Franchise = value;
+					this.SendPropertyChanged("Franchise");
+					this.OnFranchiseChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Genre", DbType="VarChar(MAX)")]
+		public string Genre
+		{
+			get
+			{
+				return this._Genre;
+			}
+			set
+			{
+				if ((this._Genre != value))
+				{
+					this.OnGenreChanging(value);
+					this.SendPropertyChanging();
+					this._Genre = value;
+					this.SendPropertyChanged("Genre");
+					this.OnGenreChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Company", DbType="VarChar(MAX)")]
+		public string Company
+		{
+			get
+			{
+				return this._Company;
+			}
+			set
+			{
+				if ((this._Company != value))
+				{
+					this.OnCompanyChanging(value);
+					this.SendPropertyChanging();
+					this._Company = value;
+					this.SendPropertyChanged("Company");
+					this.OnCompanyChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RTCRating", DbType="Int")]
+		public System.Nullable<int> RTCRating
+		{
+			get
+			{
+				return this._RTCRating;
+			}
+			set
+			{
+				if ((this._RTCRating != value))
+				{
+					this.OnRTCRatingChanging(value);
+					this.SendPropertyChanging();
+					this._RTCRating = value;
+					this.SendPropertyChanged("RTCRating");
+					this.OnRTCRatingChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RTARating", DbType="Int")]
+		public System.Nullable<int> RTARating
+		{
+			get
+			{
+				return this._RTARating;
+			}
+			set
+			{
+				if ((this._RTARating != value))
+				{
+					this.OnRTARatingChanging(value);
+					this.SendPropertyChanging();
+					this._RTARating = value;
+					this.SendPropertyChanged("RTARating");
+					this.OnRTARatingChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_year", DbType="Int NOT NULL")]
+		public int year
+		{
+			get
+			{
+				return this._year;
+			}
+			set
+			{
+				if ((this._year != value))
+				{
+					this.OnyearChanging(value);
+					this.SendPropertyChanging();
+					this._year = value;
+					this.SendPropertyChanged("year");
+					this.OnyearChanged();
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Error")]
+	public partial class Error : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private string _link;
+		
+		private string _detail;
+		
+		private int _ID;
+		
+		private int _year;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnlinkChanging(string value);
+    partial void OnlinkChanged();
+    partial void OndetailChanging(string value);
+    partial void OndetailChanged();
+    partial void OnIDChanging(int value);
+    partial void OnIDChanged();
+    partial void OnyearChanging(int value);
+    partial void OnyearChanged();
+    #endregion
+		
+		public Error()
+		{
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_link", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
+		public string link
+		{
+			get
+			{
+				return this._link;
+			}
+			set
+			{
+				if ((this._link != value))
+				{
+					this.OnlinkChanging(value);
+					this.SendPropertyChanging();
+					this._link = value;
+					this.SendPropertyChanged("link");
+					this.OnlinkChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_detail", DbType="VarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string detail
+		{
+			get
+			{
+				return this._detail;
+			}
+			set
+			{
+				if ((this._detail != value))
+				{
+					this.OndetailChanging(value);
+					this.SendPropertyChanging();
+					this._detail = value;
+					this.SendPropertyChanged("detail");
+					this.OndetailChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ID
+		{
+			get
+			{
+				return this._ID;
+			}
+			set
+			{
+				if ((this._ID != value))
+				{
+					this.OnIDChanging(value);
+					this.SendPropertyChanging();
+					this._ID = value;
+					this.SendPropertyChanged("ID");
+					this.OnIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_year", DbType="Int NOT NULL")]
+		public int year
+		{
+			get
+			{
+				return this._year;
+			}
+			set
+			{
+				if ((this._year != value))
+				{
+					this.OnyearChanging(value);
+					this.SendPropertyChanging();
+					this._year = value;
+					this.SendPropertyChanged("year");
+					this.OnyearChanged();
 				}
 			}
 		}

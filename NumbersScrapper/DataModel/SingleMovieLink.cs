@@ -14,14 +14,16 @@ namespace NumbersScrapper.DataModel
     class SingleMovieLink
     {
         public string url { get; set; }
+        public int year { get; set; }
         //HtmlDocument maindoc = new HtmlDocument();
         //HtmlDocument bodoc = new HtmlDocument();
         //HtmlDocument vidsales = new HtmlDocument();
         //HtmlDocument roles = new HtmlDocument();
 
-        public SingleMovieLink(string _url)
+        public SingleMovieLink(string _url, int _year)
         {
             url = @"http://www.the-numbers.com/" + _url.Split('#').First();
+            year = _year;
         }
 
         public void GetMovie()
@@ -67,7 +69,7 @@ namespace NumbersScrapper.DataModel
                     if (count >= 3)
                     {
                         Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                        Helper.WriteToError(url, e.StackTrace);
+                        Helper.WriteToError(url, e.StackTrace, year);
                     }
                     else
                     {
@@ -133,11 +135,11 @@ namespace NumbersScrapper.DataModel
                             else
                                 reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
                             realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
-                            var publisher = HtmlNode.CreateNode(rel[1].Trim());
+                            HtmlNode publisher = rel.Count() > 2 ? HtmlNode.CreateNode(rel[1].Trim()) : null;
                             ReleaseDate reldateDBtemp = new ReleaseDate();
                             reldateDBtemp.ReleaseDate1 = realreldate;
                             reldateDBtemp.Remarks = kind;
-                            reldateDBtemp.Company = publisher.InnerText;
+                            reldateDBtemp.Company = publisher == null ? "Unknown" : publisher.InnerText;
                             reldateDBtemp.Desc = kind;
                             reldateDB.Add(reldateDBtemp);
                         }
@@ -206,7 +208,7 @@ namespace NumbersScrapper.DataModel
                 }
                 try
                 {
-                    var check = dc.CheckIfExistsTheSame(movieDB.Title, reldateDB);
+                    var check = dc.CheckIfExistsTheSame(movieDB.Title, year);
                     if (check.Equals("false"))
                     {
                         dc.ReleaseDates.InsertAllOnSubmit(reldateDB.Select(rd => { rd.MovieID = movieDB.ID; return rd; }).ToList());
@@ -222,7 +224,7 @@ namespace NumbersScrapper.DataModel
                 catch (Exception e)
                 {
                     Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                    Helper.WriteToError(url, e.StackTrace);
+                    Helper.WriteToError(url, e.StackTrace, year);
                 }
             }
             return result;
@@ -264,7 +266,7 @@ namespace NumbersScrapper.DataModel
                     if (count >= 3)
                     {
                         Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                        Helper.WriteToError(url, e.StackTrace);
+                        Helper.WriteToError(url, e.StackTrace, year);
                     }
                     else
                     {
@@ -278,40 +280,43 @@ namespace NumbersScrapper.DataModel
                 {
                     var table1 = doc.DocumentNode.Descendants("div")
                         .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("id")) && div.Attributes["id"].Value.Equals("box-office"));
-                    var table2 = table1
-                            .Descendants("div").First(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id")) && obj.Attributes["id"].Value.Equals("box_office_chart"));
-                    var table = table2
-                            .Descendants("table").FirstOrDefault();
-                    List<HtmlNode> trs = table.Descendants("tr").ToList();
-                    trs.RemoveAt(0); // remove header
-
-                    try
+                    if (table1.Descendants("div").Count() > 1)
                     {
-                        foreach (HtmlNode tr in trs)
+                        var table2 = table1
+                                .Descendants("div").First(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id")) && obj.Attributes["id"].Value.Equals("box_office_chart"));
+                        var table = table2
+                                .Descendants("table").FirstOrDefault();
+                        List<HtmlNode> trs = table.Descendants("tr").ToList();
+                        trs.RemoveAt(0); // remove header
+
+                        try
                         {
-                            var tds = tr.Descendants("td").ToArray();
-                            DailyBO tempDBO = new DailyBO { MovieID = movieID };
-                            tempDBO.DateCounted = DateTime.ParseExact(tds[0].Descendants("a").Single().InnerText, "yyyy/MM/dd", CultureInfo.InvariantCulture);
-                            tempDBO.Rank = tds[1].InnerText.Equals("-") ? 0 : Int32.Parse(tds[1].InnerText);
-                            tempDBO.Gross = Double.Parse(tds[2].InnerText.Replace("$", String.Empty).Replace(",", String.Empty).Replace("&nbsp;", string.Empty));
-                            tempDBO.TheatersCount = Int32.Parse(tds[4].InnerText.Replace(",", string.Empty));
-                            tempDBO.TotalGross = Double.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty));
-                            tempDBO.NumDays = Int32.Parse(tds[7].InnerText);
-                            dboDB.Add(tempDBO);
+                            foreach (HtmlNode tr in trs)
+                            {
+                                var tds = tr.Descendants("td").ToArray();
+                                DailyBO tempDBO = new DailyBO { MovieID = movieID };
+                                tempDBO.DateCounted = DateTime.ParseExact(tds[0].Descendants("a").Single().InnerText, "yyyy/MM/dd", CultureInfo.InvariantCulture);
+                                tempDBO.Rank = tds[1].InnerText.Equals("-") ? 0 : Int32.Parse(tds[1].InnerText);
+                                tempDBO.Gross = Double.Parse(tds[2].InnerText.Replace("$", String.Empty).Replace(",", String.Empty).Replace("&nbsp;", string.Empty));
+                                tempDBO.TheatersCount = Int32.Parse(tds[4].InnerText.Replace(",", string.Empty));
+                                tempDBO.TotalGross = Double.Parse(tds[6].InnerText.Replace("$", string.Empty).Replace(",", string.Empty).Replace("&nbsp;", string.Empty));
+                                tempDBO.NumDays = Int32.Parse(tds[7].InnerText);
+                                dboDB.Add(tempDBO);
+                            }
                         }
-                    }
-                    catch
-                    {
-                        throw;
-                    }
+                        catch
+                        {
+                            throw;
+                        }
 
-                    dc.DailyBOs.InsertAllOnSubmit(dboDB);
-                    dc.SubmitChanges();
+                        dc.DailyBOs.InsertAllOnSubmit(dboDB);
+                        dc.SubmitChanges();
+                    }
                 }
                 catch (Exception e)
                 {
                     Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                    Helper.WriteToError(url, e.StackTrace);
+                    Helper.WriteToError(url, e.StackTrace, year);
                 }
             }
         }
@@ -351,7 +356,7 @@ namespace NumbersScrapper.DataModel
                     if (count >= 3)
                     {
                         Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                        Helper.WriteToError(url, e.StackTrace);
+                        Helper.WriteToError(url, e.StackTrace, year);
                     }
                     else
                     {
@@ -363,13 +368,16 @@ namespace NumbersScrapper.DataModel
             {
                 try
                 {
-                    var table = doc.DocumentNode.Descendants("div")
-                        .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("id")) && div.Attributes["id"].Value.Equals("video-sales"))
-                            .Descendants("div").Where(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id")) && obj.Attributes["id"].Value.Equals("box_office_chart"));
-
-
-                    GetDVDSales(table.First(), movieID);
-                    GetBluRaySales(table.Last(), movieID);
+                    var table1 = doc.DocumentNode.Descendants("div")
+                        .First(div => div.HasAttributes && div.Attributes.Any(attrib => attrib.Name.Equals("id")) && div.Attributes["id"].Value.Equals("video-sales"));
+                    if (table1.Descendants("div").Count() > 0)
+                    {
+                        var table = table1.Descendants("div")
+                            .Where(obj => obj.HasAttributes && obj.Attributes.Any(attr => attr.Name.Equals("id"))
+                                && obj.Attributes["id"].Value.Equals("box_office_chart"));
+                        GetDVDSales(table.First(), movieID);
+                        GetBluRaySales(table.Last(), movieID);
+                    }
                 }
                 catch
                 {
@@ -415,7 +423,7 @@ namespace NumbersScrapper.DataModel
             catch (Exception e)
             {
                 Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                Helper.WriteToError(url, e.StackTrace);
+                Helper.WriteToError(url, e.StackTrace, year);
             }
         }
 
@@ -457,10 +465,10 @@ namespace NumbersScrapper.DataModel
             catch (Exception e)
             {
                 Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                Helper.WriteToError(url, e.StackTrace);
+                Helper.WriteToError(url, e.StackTrace, year);
             }
 
-            
+
         }
         #endregion
 
@@ -494,7 +502,7 @@ namespace NumbersScrapper.DataModel
                     if (count >= 3)
                     {
                         Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                        Helper.WriteToError(url, e.StackTrace);
+                        Helper.WriteToError(url, e.StackTrace, year);
                     }
                     else
                     {
@@ -553,7 +561,7 @@ namespace NumbersScrapper.DataModel
                 catch (Exception e)
                 {
                     Helper.WriteToLog(ProgramStatus.Error, "error loading the movie");
-                    Helper.WriteToError(url, e.StackTrace);
+                    Helper.WriteToError(url, e.StackTrace, year);
                 }
             }
         }

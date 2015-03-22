@@ -17,26 +17,34 @@ namespace NumbersScrapper.DataModel
             latestID = (Int32.Parse(latestID) + 1).ToString();
             return latestID;
         }
-        public string CheckIfExistsTheSame(string title, List<ReleaseDate> rds)
+        public string CheckIfExistsTheSame(string title, int _year)
         {
             string result = "false";
             if (this.Movies.Any(mov => mov.Title.Equals(title)))
             {
-                var tempMovies = this.Movies.Where(mov => mov.Title.Equals(title));
-                foreach (var tempMovie in tempMovies)
+                var isExist = this.Movies.Any(mov => mov.Title.Equals(title) && mov.year == _year);
+                if (isExist)
                 {
-                    foreach (var rd in rds)
-                    {
-                        int year = rd.ReleaseDate1.Year;
-                        if (this.ReleaseDates.Any(rd1 => rd1.MovieID.Equals(tempMovie.ID) && rd1.ReleaseDate1.Year == year))
-                        {
-                            result = tempMovie.ID;
-                        }
-                        if (!result.Equals("false")) ;
-                    }
+                    result = this.Movies.Single(mov => mov.Title.Equals(title) && mov.year == _year).ID;
                 }
             }
             return result;
+        }
+
+        public bool IsThereAnyError()
+        {
+            return this.Logs.Any(logs => logs.Desc.Contains("ERROR"));
+        }
+
+        public List<string> GetAllYearsInDatabase()
+        {
+            List<string> years = new List<string>();
+
+            var tempyears = from movieData in this.Movies
+                            group movieData by movieData.year into yearGrouping
+                            select yearGrouping.Key;
+
+            return years;
         }
     }
 }

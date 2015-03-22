@@ -15,3 +15,7 @@ C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\EntityFramework.xml
 C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\EntityFramework.SqlServer.xml
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Forms.Main.resources
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Forms.HowTo.resources
+C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Forms.ExportToExcel.resources
+C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\MoreLinq.dll
+C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\MoreLinq.xml
+C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.csproj.ResolveComReference.cache

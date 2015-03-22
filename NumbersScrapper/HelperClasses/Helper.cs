@@ -84,10 +84,10 @@ namespace NumbersScrapper.HelperClasses
             return;
         }
 
-        public static void WriteToError(string link, string detail)
+        public static void WriteToError(string _link, string _detail, int _year)
         {
             TheNumbersDataContext dc = new TheNumbersDataContext();
-            dc.Errors.InsertOnSubmit(new Error { detail = detail, link = link.Replace(@"http://www.the-numbers.com/",String.Empty) });
+            dc.Errors.InsertOnSubmit(new Error { detail = _detail, link = _link.Replace(@"http://www.the-numbers.com/",String.Empty), year = _year });
             dc.SubmitChanges();
         }
     }

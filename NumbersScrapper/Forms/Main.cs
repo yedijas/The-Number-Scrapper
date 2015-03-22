@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using HtmlAgilityPack;
 using NumbersScrapper.DataModel;
 using NumbersScrapper.HelperClasses;
+using MoreLinq;
 
 namespace NumbersScrapper.Forms
 {
@@ -29,6 +30,28 @@ namespace NumbersScrapper.Forms
         private void rbAll_CheckedChanged(object sender, EventArgs e)
         {
             txtYear.Enabled = false;
+        }
+
+        private void Redownload_Click(object sender, EventArgs e)
+        {
+            TheNumbersDataContext dc = new TheNumbersDataContext();
+            var errors = dc.Errors.DistinctBy(x => x.link);
+
+            foreach (var error in errors)
+            {
+                dc.ExecuteCommand("TRUNCATE TABLE [dbo].[log]"); // clears the log first.
+                SingleMovieLink tempsml = new SingleMovieLink(error.link, error.year);
+                dc.Connection.Close();
+                tempsml.GetMovie();
+                if (dc.Connection.State.Equals(ConnectionState.Closed))
+                    dc.Connection.Open();
+                if (!dc.IsThereAnyError())
+                {
+                    var tempdelete = dc.Errors.Where(err => err.link.Equals(error));
+                    dc.Errors.DeleteAllOnSubmit(tempdelete);
+                    dc.SubmitChanges();
+                }
+            }
         }
 
         private void btnDownload_Click(object sender, EventArgs e)
@@ -74,7 +97,8 @@ namespace NumbersScrapper.Forms
                         o => o.HasAttributes && o.Attributes.Any(p => p.Name.Equals("id")) &&
                         o.Attributes["id"].Value.Equals("year"))
                         .Descendants("table").FirstOrDefault();
-                    var trs = table.Descendants("tr").Reverse();
+                    var trs = table.Descendants("tr").Reverse().ToList();
+                    trs.Remove(trs.Last());
 
                     foreach (var tr in trs)
                     {
@@ -141,6 +165,12 @@ namespace NumbersScrapper.Forms
             // test modules
             //SingleMovieLink testsml = new SingleMovieLink(@"movie/Dark-Knight-The");
             //testsml.GetMovie();
+        }
+
+        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ExportToExcel export = new ExportToExcel();
+            export.Show();
         }
     }
 }
