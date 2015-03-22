@@ -4,7 +4,6 @@ C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\NumbersScrapper.pdb
 C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\HtmlAgilityPack.dll
 C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\HtmlAgilityPack.pdb
 C:\projects\NumbersScrapper\NumbersScrapper\bin\Debug\HtmlAgilityPack.xml
-C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.csprojResolveAssemblyReference.cache
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.Properties.Resources.resources
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.csproj.GenerateResource.Cache
 C:\projects\NumbersScrapper\NumbersScrapper\obj\Debug\NumbersScrapper.exe
