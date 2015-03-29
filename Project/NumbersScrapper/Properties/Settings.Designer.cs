@@ -32,5 +32,32 @@ namespace NumbersScrapper.Properties {
                 return ((string)(this["TheNumbersConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.2.1")]
+        public string version {
+            get {
+                return ((string)(this["version"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("The Numbers Scrapper")]
+        public string appname {
+            get {
+                return ((string)(this["appname"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("bananab9001@gmail.com")]
+        public string contact {
+            get {
+                return ((string)(this["contact"]));
+            }
+        }
     }
 }

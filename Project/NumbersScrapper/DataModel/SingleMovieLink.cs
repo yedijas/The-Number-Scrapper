@@ -139,10 +139,10 @@ namespace NumbersScrapper.DataModel
                                 else
                                     reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
                                 realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
-                                HtmlNode publisher = rel.Count() > 2 ? HtmlNode.CreateNode(rel[1].Trim()) : null;
+                                HtmlNode publisher = rel.Count() > 1 ? HtmlNode.CreateNode(rel[1].Trim()) : null;
                                 ReleaseDate reldateDBtemp = new ReleaseDate();
                                 reldateDBtemp.ReleaseDate1 = realreldate;
-                                reldateDBtemp.Remarks = kind;
+                                reldateDBtemp.Remarks = "Domestic";
                                 reldateDBtemp.Company = publisher == null ? "Unknown" : publisher.InnerText;
                                 reldateDBtemp.Desc = kind;
                                 reldateDB.Add(reldateDBtemp);
@@ -164,12 +164,12 @@ namespace NumbersScrapper.DataModel
                                 else
                                     reldate = rel[0].Remove(rel[0].IndexOf(',') - 2, 2).Trim();
                                 realreldate = DateTime.ParseExact(reldate, "MMMM d, yyyy", CultureInfo.InvariantCulture);
-                                var publisher = HtmlNode.CreateNode(rel[1].Trim());
+                                var publisher = rel.Count() > 1 ? HtmlNode.CreateNode(rel[1].Trim()) : null;
                                 ReleaseDate reldateDBtemp = new ReleaseDate();
                                 reldateDBtemp.ReleaseDate1 = realreldate;
-                                reldateDBtemp.Remarks = kind;
-                                reldateDBtemp.Company = publisher.InnerText;
-                                reldateDBtemp.Desc = kind;
+                                reldateDBtemp.Remarks = "Video";
+                                reldateDBtemp.Company = publisher == null ? "Unknown" : publisher.InnerText;
+                                reldateDBtemp.Desc = string.IsNullOrEmpty(kind) ? "Unknown" : kind;
                                 reldateDB.Add(reldateDBtemp);
                             }
                         }

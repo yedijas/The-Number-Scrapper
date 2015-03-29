@@ -47,7 +47,7 @@ namespace NumbersScrapper.Forms
                     dc.Connection.Open();
                 if (!dc.IsThereAnyError())
                 {
-                    var tempdelete = dc.Errors.Where(err => err.link.Equals(error));
+                    var tempdelete = dc.Errors.Where(err => err.link.Equals(error.link));
                     dc.Errors.DeleteAllOnSubmit(tempdelete);
                     dc.SubmitChanges();
                 }
@@ -164,7 +164,7 @@ namespace NumbersScrapper.Forms
         private void Main_Load(object sender, EventArgs e)
         {
             // test modules
-            //SingleMovieLink testsml = new SingleMovieLink(@"movie/Dark-Knight-The");
+            //SingleMovieLink testsml = new SingleMovieLink(@"movie/12-Gifts-of-Christmas", 2000);
             //testsml.GetMovie();
         }
 
@@ -172,6 +172,12 @@ namespace NumbersScrapper.Forms
         {
             ExportToExcel export = new ExportToExcel();
             export.Show();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            About aboutForm = new About();
+            aboutForm.Show();
         }
     }
 }
